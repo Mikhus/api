@@ -22,11 +22,31 @@ import * as helmet from 'helmet';
 import * as express from 'express';
 import * as expressGraphql from 'express-graphql';
 import * as compression from 'compression';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as https from 'https';
+import * as http from 'http';
 
-import { schema, clientOptions, user } from '.';
+import {
+    portOpen,
+    schema,
+    clientOptions,
+    user
+} from '.';
 
 export class Application {
+
+    public static env = process.env['NODE_ENV'] || 'development';
+    public static host = os.hostname();
+    public static port = Number(process.env['API_PORT']) || 8888;
+    public static key = process.env["API_SSL_KEY"] || '';
+    public static cert = process.env['API_SSL_CERT'] || '';
+    public static isSecure = !!(~process.argv.indexOf('--SECURED') &&
+        Application.key && Application.cert
+    );
+
     public static async run() {
+        let port = Application.port;
         const app = express();
         const context = {
             user: new user.UserClient(clientOptions),
@@ -50,11 +70,34 @@ export class Application {
             limit: '20mb',
         }));
         app.use(helmet());
-        app.use('/graphql', expressGraphql(request =>({
+        app.use('/', expressGraphql(request =>({
             schema: schema,
             rootValue: request,
             graphiql: process.env['NODE_ENV'] === 'development',
             context,
         })));
+
+        while (!await portOpen(port)) {
+            port++;
+        }
+
+        Application.port = port;
+
+        if (Application.isSecure) {
+            https.createServer({
+                key: fs.readFileSync(Application.key),
+                cert: fs.readFileSync(Application.cert)
+            }, app).listen(port, async () => {
+                console.log(`Listening at https://${Application.host}:${port}`);
+                console.log(`Environment: ${Application.env}`);
+            });
+        }
+
+        else {
+            http.createServer(app).listen(port, async() => {
+                console.log(`Listening at http://${Application.host}:${port}`);
+                console.log(`Environment: ${Application.env}`);
+            });
+        }
     }
 }
