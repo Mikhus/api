@@ -1,7 +1,7 @@
 {
   "name": "api",
   "version": "1.0.0-0",
-  "description": "api - IMQ based service",
+  "description": "GraphQL API for tutorial app",
   "keywords": [],
   "scripts": {
     "prepublish": "npm run build",
