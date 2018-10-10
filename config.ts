@@ -16,13 +16,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
  */
-import { IMQServiceOptions } from '@imqueue/rpc';
+import { IMQClientOptions } from '@imqueue/rpc';
 import { config as initEnvironment } from 'dotenv';
 
 initEnvironment();
 
 /* check environments variables if required to bypass secrets */
 
-export const serviceOptions: Partial<IMQServiceOptions> = {
+export const clientOptions: Partial<IMQClientOptions> = {
     /* define your service-specific options here */
 };

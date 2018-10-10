@@ -16,10 +16,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
  */
-import { serviceOptions } from './config';
-import { Api } from './src';
+import { Application } from './src';
 
-(async () => {
-    const service = new Api(serviceOptions);
-    await service.start();
-})();
+Application.run()
+    .then(() => console.log('API application started!'))
+    .catch((err: Error) => console.error(err))
+;

@@ -16,7 +16,12 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
  */
-export * from './clients';
-export * from './schema';
-export * from './Application';
-export * from '../config';
+import { expect } from 'chai';
+import { Application } from '../../src';
+
+describe('Application', () => {
+    it('should be a class', () => {
+        expect(typeof Application)
+            .equals('function');
+    });
+});
