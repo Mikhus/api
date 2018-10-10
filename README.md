@@ -1,6 +1,7 @@
 # api
 
-api - IMQ based service
+GraphQL API application for tutorial application based on
+@imqueue services.
 
 ## Usage
 
