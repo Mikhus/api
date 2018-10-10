@@ -85,7 +85,7 @@ export class Application {
 
         Application.initMiddleware(app);
         Application.initRoutes(app, context);
-        Application.startServer(app);
+        return Application.startServer(app);
     }
 
     /**
@@ -117,9 +117,14 @@ export class Application {
                 );
             },
             // keep rawBody with request
-            verify(req: any, res: any, buf: any, encoding: string) {
+            verify(
+                req: express.Request,
+                res: express.Response,
+                buf: Buffer,
+                encoding: string
+            ) {
                 if (buf && buf.length) {
-                    req.rawBody = buf.toString(encoding || 'utf8');
+                    (req as any).rawBody = buf.toString(encoding || 'utf8');
                 }
             },
             limit: '20mb',
@@ -133,7 +138,7 @@ export class Application {
      * @return {any} - initialized context
      */
     private static async bootstrapContext(): Promise<any> {
-        const context = {
+        const context: any = {
             user: new user.UserClient(clientOptions),
         };
 
@@ -148,7 +153,7 @@ export class Application {
      * @param {express.Application} app
      */
     private static async startServer(app: express.Application) {
-        let port = Application.port;
+        let port: number = Application.port;
 
         while (!await portOpen(port)) {
             port++;
