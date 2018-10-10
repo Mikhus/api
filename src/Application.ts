@@ -36,24 +36,79 @@ import {
 
 export class Application {
 
-    public static env = process.env['NODE_ENV'] || 'development';
-    public static host = os.hostname();
-    public static port = Number(process.env['API_PORT']) || 8888;
-    public static key = process.env["API_SSL_KEY"] || '';
-    public static cert = process.env['API_SSL_CERT'] || '';
-    public static isSecure = !!(~process.argv.indexOf('--SECURED') &&
-        Application.key && Application.cert
+    /**
+     * Runtime environment name
+     * @type {string}
+     */
+    public static env: string = process.env['NODE_ENV'] || 'development';
+
+    /**
+     * Application runtime hostname
+     * @type {string}
+     */
+    public static host: string = os.hostname();
+
+    /**
+     * Application runtime port
+     * @type {number}
+     */
+    public static port: number = Number(process.env['API_PORT']) || 8888;
+
+    /**
+     * Path to SSL .key file for secure connections
+     * @type {string}
+     */
+    public static key: string = process.env["API_SSL_KEY"] || '';
+
+    /**
+     * Path to SSL .cert file for secure connections
+     * @type {string}
+     */
+    public static cert: string = process.env['API_SSL_CERT'] || '';
+
+    /**
+     * Runtime secure flag
+     * @type {boolean}
+     */
+    public static isSecure: boolean = !!(
+        ~process.argv.indexOf('--SECURED') &&
+        Application.key &&
+        Application.cert
     );
 
+    /**
+     * Starts-up an application
+     */
     public static async run() {
-        let port = Application.port;
-        const app = express();
-        const context = {
-            user: new user.UserClient(clientOptions),
-        };
+        const app: express.Application = express();
+        const context: any = await Application.bootstrapContext();
 
-        await context.user.start();
+        Application.initMiddleware(app);
+        Application.initRoutes(app, context);
+        Application.startServer(app);
+    }
 
+    /**
+     * Initializes application's http routes
+     *
+     * @param {express.Application} app
+     * @param {any} context
+     */
+    private static initRoutes(app: express.Application, context: any) {
+        app.use('/', expressGraphql(request =>({
+            schema: schema,
+            rootValue: request,
+            graphiql: Application.env === 'development',
+            context,
+        })));
+    }
+
+    /**
+     * Initializes all required express middlewares
+     *
+     * @param {express.Application} app
+     */
+    private static initMiddleware(app: express.Application) {
         app.use(compression());
         app.use(bodyParser.json({
             type(req: express.Request) {
@@ -70,12 +125,30 @@ export class Application {
             limit: '20mb',
         }));
         app.use(helmet());
-        app.use('/', expressGraphql(request =>({
-            schema: schema,
-            rootValue: request,
-            graphiql: process.env['NODE_ENV'] === 'development',
-            context,
-        })));
+    }
+
+    /**
+     * Initializes runtime context for graphql application
+     *
+     * @return {any} - initialized context
+     */
+    private static async bootstrapContext(): Promise<any> {
+        const context = {
+            user: new user.UserClient(clientOptions),
+        };
+
+        await context.user.start();
+
+        return context;
+    }
+
+    /**
+     * Starts HTTP server and binds express application
+     *
+     * @param {express.Application} app
+     */
+    private static async startServer(app: express.Application) {
+        let port = Application.port;
 
         while (!await portOpen(port)) {
             port++;
