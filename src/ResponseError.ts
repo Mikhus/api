@@ -24,3 +24,5 @@ export class ResponseError extends Error {
         this.extensions.code = code;
     }
 }
+
+export const ERROR_UNAUTHORIZED = new ResponseError('Unauthorized', 401);

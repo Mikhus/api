@@ -16,9 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
-import { ResponseError } from '..';
-
-const unauthorizedError = new ResponseError('Unauthorized', 401);
+import { ERROR_UNAUTHORIZED } from '..';
 
 /**
  * Validates if given GraphQL request is called by admin user
@@ -30,7 +28,7 @@ export function validateAdmin(...args: any[]) {
     const user: any = args[3].rootValue.authUser;
 
     if (!(user && user.isActive && user.isAdmin)) {
-        throw unauthorizedError;
+        throw ERROR_UNAUTHORIZED;
     }
 }
 
@@ -52,6 +50,6 @@ export function validateOwner(...args: any[]) {
     ));
 
     if (!(isOwner || isAdmin)) {
-        throw unauthorizedError;
+        throw ERROR_UNAUTHORIZED;
     }
 }
