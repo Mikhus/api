@@ -1,11 +1,36 @@
-type Mutation {
-
+"""An object with an ID"""
+interface Node {
+  """The id of the object."""
+  id: ID!
 }
 
 type Query {
+  user: [User]
 
+  """Fetches an object given its ID"""
+  node(
+    """The ID of an object"""
+    id: ID!
+  ): Node
 }
 
-type Subscription {
+"""User entity"""
+type User implements Node {
+  """The ID of an object"""
+  id: ID!
 
+  """User's first (given) name"""
+  firstName: String
+
+  """User's last (family) name"""
+  lastName: String
+
+  """User's contact email (unique)"""
+  email: String
+
+  """User's password"""
+  password: String
+
+  """User's active state flag"""
+  isActive: Boolean
 }

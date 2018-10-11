@@ -23,6 +23,7 @@ export namespace user {
         email: string;
         password: string;
         isActive: boolean;
+        isAdmin: boolean;
         firstName: string;
         lastName: string;
     }
@@ -73,12 +74,13 @@ export namespace user {
          * identifier
          *
          * @param {string} criteria - user identifier or e-mail string
+         * @param {string[]} fields - fields to select and return
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
          * @return {Promise<UserObject | null>}
          */
         @profile()
         @remote()
-        public async fetch(criteria: string, delay?: IMQDelay): Promise<UserObject | null> {
+        public async fetch(criteria: string, fields: string[], delay?: IMQDelay): Promise<UserObject | null> {
             return await this.remoteCall<UserObject | null>(...arguments);
         }
 
@@ -101,6 +103,7 @@ export namespace user {
          * of a given limit argument
          *
          * @param {boolean} [isActive] - is active criteria to filter user list
+         * @param {string[]} [fields] - list of fields to be selected and returned for each found user object
          * @param {number} [skip] - record to start fetching from
          * @param {number} [limit] - selected collection max length from a starting position
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
@@ -108,7 +111,7 @@ export namespace user {
          */
         @profile()
         @remote()
-        public async find(isActive?: boolean, skip?: number, limit?: number, delay?: IMQDelay): Promise<UserObject[]> {
+        public async find(isActive?: boolean, fields?: string[], skip?: number, limit?: number, delay?: IMQDelay): Promise<UserObject[]> {
             return await this.remoteCall<UserObject[]>(...arguments);
         }
 
