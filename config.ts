@@ -25,4 +25,5 @@ initEnvironment();
 
 export const clientOptions: Partial<IMQClientOptions> = {
     /* define your service-specific options here */
+    logger: console
 };

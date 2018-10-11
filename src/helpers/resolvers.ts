@@ -18,16 +18,19 @@
  */
 import { GraphQLResolveInfo } from 'graphql';
 import { fromGlobalId } from 'graphql-relay';
-import { profile } from '@imqueue/rpc';
+import { ILogger, profile } from '@imqueue/rpc';
 import { user as u } from '../clients';
 import { selectedFields } from '.';
+import { clientOptions } from '../../config';
 
 /**
  * Implementation of specific resolvers for  GraphQL schema
  */
 export class Resolvers {
 
-    public static logger = console;
+    // @ts-ignore
+    // noinspection JSUnusedGlobalSymbols
+    public static logger: ILogger = clientOptions.logger;
 
     /**
      * Fetches specific node data by a specified identifier
