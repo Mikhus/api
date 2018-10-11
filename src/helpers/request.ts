@@ -25,10 +25,16 @@ export function requestUser(context: any) {
         next: any
     ) => {
         try {
-            const email = req.headers['x-auth-user'];
+            const token: string = String(req.headers['x-auth-user'] || '');
 
-            if (email) {
-                (req as any).authUser = await context.user.fetch(email);
+            if (!token) {
+                return next();
+            }
+
+            const user: any = await context.auth.verify(token);
+
+            if (user) {
+                (req as any).authUser = user;
             }
 
             next();

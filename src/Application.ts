@@ -33,6 +33,7 @@ import {
     portOpen,
     schema,
     user,
+    auth
 } from '.';
 import { graphQLValidityExpressMiddleware } from 'graphql-validity/lib';
 
@@ -103,12 +104,18 @@ export class Application {
             graphiql: Application.env === 'development',
             context,
             formatError(err: Error) {
-                return ({
+                let extensions: any = null;
+
+                if ((err as any).extensions) {
+                    extensions = (err as any).extensions;
+                }
+
+                return {
                     message: err.message,
-                    extensions: { code: (err as any).extensions.code },
+                    extensions,
                     locations: (err as any).locations,
                     path: (err as any).path
-                });
+                };
             }
         })));
     }
@@ -152,9 +159,11 @@ export class Application {
     private static async bootstrapContext(): Promise<any> {
         const context: any = {
             user: new user.UserClient(clientOptions),
+            auth: new auth.AuthClient(clientOptions),
         };
 
         await context.user.start();
+        await context.auth.start();
 
         return context;
     }

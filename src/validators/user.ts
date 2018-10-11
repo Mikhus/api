@@ -18,6 +18,8 @@
  */
 import { ResponseError } from '..';
 
+const unauthorizedError = new ResponseError('Unauthorized', 401);
+
 /**
  * Validates if given GraphQL request is called by admin user
  *
@@ -28,6 +30,28 @@ export function validateAdmin(...args: any[]) {
     const user: any = args[3].rootValue.authUser;
 
     if (!(user && user.isActive && user.isAdmin)) {
-        throw new ResponseError('Unauthorized', 401);
+        throw unauthorizedError;
+    }
+}
+
+/**
+ * Verifies if a fetched request data
+ *  @param {...any[]} args - request arguments
+ */
+export function validateOwner(...args: any[]) {
+    const authUser: any = args[3].rootValue.authUser;
+    const data: any = args[0];
+    const isAdmin = authUser && authUser.isActive && authUser.isAdmin;
+    const isOwner = (data && authUser && (
+        (data._id && data._id === authUser._id) ||
+        (data.email && data.email === authUser.email) ||
+        (data.user && (
+            (data.user._id && data.user._id === authUser.__id) ||
+            (data.user.email && data.user.email === authUser.email)
+        ))
+    ));
+
+    if (!(isOwner || isAdmin)) {
+        throw unauthorizedError;
     }
 }

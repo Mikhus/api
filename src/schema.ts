@@ -34,10 +34,10 @@ import {
 } from 'graphql-validity/lib';
 import { user as u } from './clients';
 import { Resolvers } from './helpers';
-import { validateAdmin } from './validators';
+import { validateAdmin, validateOwner } from './validators';
 
 FieldValidationDefinitions['User:password'] = [validateAdmin];
-FieldValidationDefinitions['User:email'] = [validateAdmin];
+FieldValidationDefinitions['User:email'] = [validateOwner];
 
 const { nodeInterface, nodeField } = nodeDefinitions(Resolvers.fetchNodeById);
 
