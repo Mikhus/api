@@ -45,32 +45,6 @@ export namespace user {
         }
 
         /**
-         * Activates user in the system
-         *
-         * @param {string} id - user identifier in the system
-         * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
-         * @return {Promise<boolean>}
-         */
-        @profile()
-        @remote()
-        public async activate(id: string, delay?: IMQDelay): Promise<boolean> {
-            return await this.remoteCall<boolean>(...arguments);
-        }
-
-        /**
-         * Deactivates user in the system
-         *
-         * @param {string} id - user identifier in the system
-         * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
-         * @return {Promise<boolean>}
-         */
-        @profile()
-        @remote()
-        public async deactivate(id: string, delay?: IMQDelay): Promise<boolean> {
-            return await this.remoteCall<boolean>(...arguments);
-        }
-
-        /**
          * Look-ups and returns user data by either user e-mail or by user object
          * identifier
          *
