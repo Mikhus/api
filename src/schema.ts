@@ -24,7 +24,7 @@ import {
 import { wrapResolvers } from 'graphql-validity/lib';
 import { Resolvers } from './helpers';
 import { userType, nodeField } from './entities';
-import { updateUser } from './mutations';
+import { updateUser, login } from './mutations';
 
 /**
  * Defining Query type for GraphQL schema
@@ -46,7 +46,8 @@ const Query: GraphQLObjectType = new GraphQLObjectType({
 const Mutation: GraphQLObjectType = new GraphQLObjectType({
     name: 'Mutation',
     fields: {
-        updateUser
+        updateUser,
+        login
     },
 });
 

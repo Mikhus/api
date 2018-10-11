@@ -48,7 +48,6 @@ export const updateUser = mutationWithClientMutationId({
         lastName: { type: GraphQLString },
         isAdmin: { type: GraphQLBoolean },
         isActive: { type: GraphQLBoolean },
-        clientMutationId: { type: GraphQLString },
     },
     mutateAndGetPayload: async (
         args: any,

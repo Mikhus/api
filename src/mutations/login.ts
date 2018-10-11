@@ -16,5 +16,19 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
-export * from './updateUser';
-export * from './login';
+import { GraphQLString, GraphQLNonNull } from 'graphql';
+import { mutationWithClientMutationId } from 'graphql-relay';
+
+export const login = mutationWithClientMutationId({
+    name: 'login',
+    inputFields: {
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: new GraphQLNonNull(GraphQLString) },
+    },
+    outputFields: {
+        token: { type: GraphQLString },
+    },
+    mutateAndGetPayload: async (args: any, context: any) => {
+        return { token: await context.auth.login(args.email, args.password) };
+    }
+});
