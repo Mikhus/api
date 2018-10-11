@@ -16,7 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
-import { ERROR_UNAUTHORIZED } from '..';
+import { ResponseError, ERROR_UNAUTHORIZED } from '..';
 
 /**
  * Validates if given GraphQL request is called by admin user
@@ -34,7 +34,9 @@ export function validateAdmin(...args: any[]) {
 
 /**
  * Verifies if a fetched request data
+ *
  *  @param {...any[]} args - request arguments
+ *  @throws {ResponseError}
  */
 export function validateOwner(...args: any[]) {
     const authUser: any = args[3].rootValue.authUser;
