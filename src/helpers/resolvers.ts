@@ -20,7 +20,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { fromGlobalId } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
 import { user as u } from '../clients';
-import { selectedFields } from '.';
+import { selectedFields } from './selection';
 import { clientOptions } from '../../config';
 
 /**

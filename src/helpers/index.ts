@@ -16,5 +16,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
-export * from './selection';
+export * from './request';
 export * from './resolvers';
+export * from './selection';

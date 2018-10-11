@@ -74,13 +74,13 @@ export namespace user {
          * identifier
          *
          * @param {string} criteria - user identifier or e-mail string
-         * @param {string[]} fields - fields to select and return
+         * @param {string[]} [fields] - fields to select and return
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
          * @return {Promise<UserObject | null>}
          */
         @profile()
         @remote()
-        public async fetch(criteria: string, fields: string[], delay?: IMQDelay): Promise<UserObject | null> {
+        public async fetch(criteria: string, fields?: string[], delay?: IMQDelay): Promise<UserObject | null> {
             return await this.remoteCall<UserObject | null>(...arguments);
         }
 

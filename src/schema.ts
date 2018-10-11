@@ -28,8 +28,16 @@ import {
     globalIdField,
     connectionDefinitions,
 } from 'graphql-relay';
+import {
+    FieldValidationDefinitions,
+    wrapResolvers
+} from 'graphql-validity/lib';
 import { user as u } from './clients';
 import { Resolvers } from './helpers';
+import { validateAdmin } from './validators';
+
+FieldValidationDefinitions['User:password'] = [validateAdmin];
+FieldValidationDefinitions['User:email'] = [validateAdmin];
 
 const { nodeInterface, nodeField } = nodeDefinitions(Resolvers.fetchNodeById);
 
@@ -89,10 +97,10 @@ const Query: GraphQLObjectType = new GraphQLObjectType({
     }),
 });
 
-const Mutation: GraphQLObjectType = new GraphQLObjectType({
-    name: 'Mutation',
-    fields: {},
-});
+// const Mutation: GraphQLObjectType = new GraphQLObjectType({
+//     name: 'Mutation',
+//     fields: {},
+// });
 
 // const Subscription = new GraphQLObjectType({
 //     name: 'Subscription',
@@ -104,3 +112,5 @@ export const schema = new GraphQLSchema({
     // mutation: Mutation,
     // subscription: Subscription,
 });
+
+wrapResolvers(schema);

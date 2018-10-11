@@ -28,11 +28,13 @@ import * as https from 'https';
 import * as http from 'http';
 
 import {
+    requestUser,
     clientOptions,
     portOpen,
     schema,
-    user
+    user,
 } from '.';
+import { graphQLValidityExpressMiddleware } from 'graphql-validity/lib';
 
 export class Application {
 
@@ -83,7 +85,7 @@ export class Application {
         const app: express.Application = express();
         const context: any = await Application.bootstrapContext();
 
-        Application.initMiddleware(app);
+        Application.initMiddleware(app, context);
         Application.initRoutes(app, context);
         return Application.startServer(app);
     }
@@ -100,6 +102,14 @@ export class Application {
             rootValue: request,
             graphiql: Application.env === 'development',
             context,
+            formatError(err: Error) {
+                return ({
+                    message: err.message,
+                    extensions: { code: (err as any).extensions.code },
+                    locations: (err as any).locations,
+                    path: (err as any).path
+                });
+            }
         })));
     }
 
@@ -108,7 +118,7 @@ export class Application {
      *
      * @param {express.Application} app
      */
-    private static initMiddleware(app: express.Application) {
+    private static initMiddleware(app: express.Application, context: any) {
         app.use(compression());
         app.use(bodyParser.json({
             type(req: express.Request) {
@@ -130,6 +140,8 @@ export class Application {
             limit: '20mb',
         }));
         app.use(helmet());
+        app.use(requestUser(context));
+        app.use(graphQLValidityExpressMiddleware);
     }
 
     /**

@@ -54,6 +54,7 @@
     "express-graphql": "^0.6.12",
     "graphql": "^14.0.2",
     "graphql-relay": "^0.5.5",
+    "graphql-validity": "^0.10.9",
     "helmet": "^3.14.0"
   },
   "devDependencies": {

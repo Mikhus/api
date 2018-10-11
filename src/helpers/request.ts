@@ -1,12 +1,12 @@
 /*!
  * ISC License
- * 
+ *
  * Copyright (c) 2018, Imqueue Sandbox
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -14,12 +14,26 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- * 
+ *
  */
-export * from './helpers';
-export * from './network';
-export * from './clients';
-export * from './ResponseError';
-export * from './schema';
-export * from './Application';
-export * from '../config';
+import * as express from 'express';
+
+export function requestUser(context: any) {
+    return async (
+        req: express.Request,
+        res: express.Response,
+        next: any
+    ) => {
+        try {
+            const email = req.headers['x-auth-user'];
+
+            if (email) {
+                (req as any).authUser = await context.user.fetch(email);
+            }
+
+            next();
+        } catch (err) {
+            next(err);
+        }
+    }
+}
