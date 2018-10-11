@@ -28,9 +28,9 @@ import * as https from 'https';
 import * as http from 'http';
 
 import {
+    clientOptions,
     portOpen,
     schema,
-    clientOptions,
     user
 } from '.';
 

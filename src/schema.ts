@@ -18,9 +18,7 @@
  */
 import {
     GraphQLBoolean,
-    GraphQLID,
     GraphQLObjectType,
-    GraphQLResolveInfo,
     GraphQLSchema,
     GraphQLString,
     GraphQLList
@@ -28,27 +26,12 @@ import {
 import {
     nodeDefinitions,
     globalIdField,
-    fromGlobalId,
-    connectionFromArray,
-    connectionArgs,
     connectionDefinitions,
-    mutationWithClientMutationId,
 } from 'graphql-relay';
-import { selectedFields } from './helpers';
 import { user as u } from './clients';
+import { Resolvers } from './helpers';
 
-const { nodeInterface, nodeField } = nodeDefinitions(
-    async (globalId, context: any, info: GraphQLResolveInfo) => {
-        const { type, id } = fromGlobalId(globalId);
-
-        if (type === 'User') {
-            return await context.user.fetch(id);
-        }
-
-        return null;
-    },
-    () => undefined as any
-);
+const { nodeInterface, nodeField } = nodeDefinitions(Resolvers.fetchNodeById);
 
 /**
  * User type definition for GraphQL schema
@@ -100,17 +83,7 @@ const Query: GraphQLObjectType = new GraphQLObjectType({
     fields: () => ({
         users: {
             type: new GraphQLList(userType),
-            resolve: async (
-                source: any,
-                args: { [name: string]: any },
-                context: any,
-                info: GraphQLResolveInfo,
-            ) => {
-                const users = await context.user.find(
-                    null, selectedFields(info, { id: '_id' }));
-
-                return users;
-            }
+            resolve: Resolvers.fetchUsers
         },
         node: nodeField
     }),

@@ -17,3 +17,4 @@
  *
  */
 export * from './selection';
+export * from './resolvers';
