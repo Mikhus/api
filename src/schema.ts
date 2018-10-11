@@ -17,75 +17,18 @@
  *
  */
 import {
-    GraphQLBoolean,
     GraphQLObjectType,
     GraphQLSchema,
-    GraphQLString,
     GraphQLList
 } from 'graphql';
-import {
-    nodeDefinitions,
-    globalIdField,
-    connectionDefinitions,
-} from 'graphql-relay';
-import {
-    FieldValidationDefinitions,
-    wrapResolvers
-} from 'graphql-validity/lib';
-import { user as u } from './clients';
+import { wrapResolvers } from 'graphql-validity/lib';
 import { Resolvers } from './helpers';
-import { validateAdmin, validateOwner } from './validators';
-
-FieldValidationDefinitions['User:password'] = [validateAdmin];
-FieldValidationDefinitions['User:email'] = [validateOwner];
-
-const { nodeInterface, nodeField } = nodeDefinitions(Resolvers.fetchNodeById);
+import { userType, nodeField } from './entities';
+import { updateUser } from './mutations';
 
 /**
- * User type definition for GraphQL schema
+ * Defining Query type for GraphQL schema
  */
-const userType = new GraphQLObjectType({
-    name: 'User',
-    description: 'User entity',
-    interfaces: [nodeInterface],
-    fields: () => ({
-        id: globalIdField('User', (user: u.UserObject) => String(user._id)),
-        firstName: {
-            type: GraphQLString,
-            description: 'User\'s first (given) name',
-            resolve: (user: u.UserObject) => user.firstName,
-        },
-        lastName: {
-            type: GraphQLString,
-            description: 'User\'s last (family) name',
-            resolve: (user: u.UserObject) => user.lastName,
-        },
-        email: {
-            type: GraphQLString,
-            description: 'User\'s contact email (unique)',
-            resolve: (user: u.UserObject) => user.email,
-        },
-        password: {
-            type: GraphQLString,
-            description: 'User\'s password',
-            resolve: (user: u.UserObject) => user.password,
-        },
-        isActive: {
-            type: GraphQLBoolean,
-            description: 'User\'s active state flag',
-            resolve: (user: u.UserObject) => !!user.isActive,
-        },
-        isAdmin: {
-            type: GraphQLBoolean,
-            description: 'User\'s admin role flag',
-            resolve: (user: u.UserObject) => !!user.isAdmin,
-        },
-    }),
-});
-
-const { connectionType: userConnection } =
-    connectionDefinitions({ nodeType: userType });
-
 const Query: GraphQLObjectType = new GraphQLObjectType({
     name: 'Query',
     fields: () => ({
@@ -97,10 +40,15 @@ const Query: GraphQLObjectType = new GraphQLObjectType({
     }),
 });
 
-// const Mutation: GraphQLObjectType = new GraphQLObjectType({
-//     name: 'Mutation',
-//     fields: {},
-// });
+/**
+ * Defining Mutation type for GraphL schema
+ */
+const Mutation: GraphQLObjectType = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        updateUser
+    },
+});
 
 // const Subscription = new GraphQLObjectType({
 //     name: 'Subscription',
@@ -109,7 +57,7 @@ const Query: GraphQLObjectType = new GraphQLObjectType({
 
 export const schema = new GraphQLSchema({
     query: Query,
-    // mutation: Mutation,
+    mutation: Mutation,
     // subscription: Subscription,
 });
 

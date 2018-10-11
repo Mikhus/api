@@ -34,12 +34,13 @@ export namespace user {
          * Creates or updates existing user with the new data set
          *
          * @param {UserObject} data - user data fields
+         * @param {string[]} [fields] - fields to return on success
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
          * @return {Promise<UserObject>}
          */
         @profile()
         @remote()
-        public async update(data: UserObject, delay?: IMQDelay): Promise<UserObject> {
+        public async update(data: UserObject, fields?: string[], delay?: IMQDelay): Promise<UserObject> {
             return await this.remoteCall<UserObject>(...arguments);
         }
 
