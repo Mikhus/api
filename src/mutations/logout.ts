@@ -16,6 +16,18 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
-export * from './updateUser';
-export * from './login';
-export * from './logout';
+import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
+import { mutationWithClientMutationId } from 'graphql-relay';
+
+export const logout = mutationWithClientMutationId({
+    name: 'logout',
+    inputFields: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+    },
+    outputFields: {
+        status: { type: GraphQLBoolean },
+    },
+    mutateAndGetPayload: async (args: any, context: any) => {
+        return { status: await context.auth.logout(args.token) };
+    }
+});
