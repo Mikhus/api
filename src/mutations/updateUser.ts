@@ -27,7 +27,13 @@ import {
     mutationWithClientMutationId,
     toGlobalId
 } from 'graphql-relay';
-import { ResponseError } from '../ResponseError';
+import {
+    USER_DATA_EMPTY,
+    USER_EMAIL_EMPTY,
+    USER_FIRST_NAME_EMPTY,
+    USER_LAST_NAME_EMPTY,
+    USER_PASSWORD_EMPTY,
+} from '../ResponseError';
 import { selectedFields } from "../helpers";
 
 export const updateUser = mutationWithClientMutationId({
@@ -59,38 +65,23 @@ export const updateUser = mutationWithClientMutationId({
             delete args.id;
 
             if (Object.keys(args).length <= 1) {
-                throw new ResponseError(
-                    'No data provided to update user',
-                    'USER_DATA_EMPTY'
-                );
+                throw USER_DATA_EMPTY;
             }
         } else {
             if (!args.email) {
-                throw new ResponseError(
-                    'Email is missing',
-                    'USER_EMAIL_EMPTY'
-                );
+                throw USER_EMAIL_EMPTY;
             }
 
             else if (!args.password) {
-                throw new ResponseError(
-                    'Password is missing',
-                    'USER_PASSWORD_EMPTY'
-                );
+                throw USER_PASSWORD_EMPTY;
             }
 
             else if (!args.firstName) {
-                throw new ResponseError(
-                    'User\'s first (given) name is missing',
-                    'USER_FIRST_NAME_EMPTY'
-                );
+                throw USER_FIRST_NAME_EMPTY;
             }
 
             else if (!args.lastName) {
-                throw new ResponseError(
-                    'User\'s last (family) name is missing',
-                    'USER_FIRST_NAME_EMPTY'
-                );
+                throw USER_LAST_NAME_EMPTY;
             }
         }
 

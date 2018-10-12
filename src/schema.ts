@@ -36,6 +36,10 @@ const Query: GraphQLObjectType = new GraphQLObjectType({
             type: new GraphQLList(userType),
             resolve: Resolvers.fetchUsers
         },
+        user: {
+            type: userType,
+            resole: Resolvers.fetchUserByIdOrEmail
+        },
         node: nodeField
     }),
 });

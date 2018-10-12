@@ -22,6 +22,7 @@ import { ILogger, profile } from '@imqueue/rpc';
 import { user as u } from '../clients';
 import { selectedFields } from './selection';
 import { clientOptions } from '../../config';
+import { ERROR_USER_FETCH_CRITERIA_INVALID } from '..';
 
 /**
  * Implementation of specific resolvers for  GraphQL schema
@@ -75,5 +76,18 @@ export class Resolvers {
             null, selectedFields(info, { id: '_id' }));
 
         return users as Partial<u.UserObject>[];
+    }
+
+    public static async fetchUserByIdOrEmail(
+        source: any,
+        args: { id: string, email: string },
+        context: any,
+        info: GraphQLResolveInfo,
+    ): Promise<Partial<u.UserObject>> {
+        if (!(args.id || args.email)) {
+            throw ERROR_USER_FETCH_CRITERIA_INVALID;
+        }
+        return await context.user.fetch(args.id ? args.id : args.email,
+            selectedFields(info, { id: '_id' }));
     }
 }
