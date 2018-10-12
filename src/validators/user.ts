@@ -42,7 +42,7 @@ export function validateOwner(...args: any[]) {
     const authUser: any = args[3].rootValue.authUser;
     const data: any = args[0];
     const isAdmin = authUser && authUser.isActive && authUser.isAdmin;
-    const isOwner = (data && authUser && (
+    const isOwner = (data && authUser && authUser.isActive && (
         (data._id && data._id === authUser._id) ||
         (data.email && data.email === authUser.email) ||
         (data.user && (
