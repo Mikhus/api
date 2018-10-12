@@ -36,9 +36,11 @@ export class Resolvers {
     /**
      * Fetches specific node data by a specified identifier
      *
-     * @param globalId
-     * @param context
-     * @param info
+     * @param {any} source
+     * @param {{ [name: string]: any }} args
+     * @param {any} context
+     * @param {GraphQLResolveInfo} info
+     * @return {Promise<any>}
      */
     @profile()
     public static async fetchNodeById(
@@ -60,10 +62,11 @@ export class Resolvers {
     /**
      * Fetches users collection from remote service
      *
-     * @param source
-     * @param args
-     * @param context
-     * @param info
+     * @param {any} source
+     * @param {{ [name: string]: any }} args
+     * @param {any} context
+     * @param {GraphQLResolveInfo} info
+     * @return {Promise<Partial<UserObject>>}
      */
     @profile()
     public static async fetchUsers(
@@ -78,16 +81,31 @@ export class Resolvers {
         return users as Partial<u.UserObject>[];
     }
 
+    /**
+     * Fetches exact user by its identifier or email
+     *
+     * @param {any} source
+     * @param {{ id?: string, email?: string }} args
+     * @param {any} context
+     * @param {GraphQLResolveInfo} info
+     * @return {Promise<Partial<UserObject>>}
+     */
+    @profile()
     public static async fetchUserByIdOrEmail(
         source: any,
-        args: { id: string, email: string },
+        args: { id?: string, email?: string },
         context: any,
         info: GraphQLResolveInfo,
     ): Promise<Partial<u.UserObject>> {
         if (!(args.id || args.email)) {
             throw ERROR_USER_FETCH_CRITERIA_INVALID;
         }
-        return await context.user.fetch(args.id ? args.id : args.email,
-            selectedFields(info, { id: '_id' }));
+
+        const user =  await context.user.fetch(
+            args.id || args.email,
+            selectedFields(info, { id: '_id' })
+        );
+
+        return user as Partial<u.UserObject>;
     }
 }

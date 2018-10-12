@@ -19,7 +19,8 @@
 import {
     GraphQLObjectType,
     GraphQLSchema,
-    GraphQLList
+    GraphQLList,
+    GraphQLString,
 } from 'graphql';
 import { wrapResolvers } from 'graphql-validity/lib';
 import { Resolvers } from './helpers';
@@ -33,16 +34,31 @@ const Query: GraphQLObjectType = new GraphQLObjectType({
     name: 'Query',
     fields: () => ({
         users: {
+            description: 'Fetches list of users',
             type: new GraphQLList(userType),
             resolve: Resolvers.fetchUsers
         },
         user: {
+            description: 'Fetches user data by user id or email',
             type: userType,
-            resole: Resolvers.fetchUserByIdOrEmail
+            args: {
+                id: {
+                    type: GraphQLString,
+                    description: 'User identifier. Optional. ' +
+                        'Either this identifier or email required' ,
+                },
+                email: {
+                    type: GraphQLString,
+                    description: 'User email address. Optional. ' +
+                        'Either this email or identifier required',
+                },
+            },
+            resolve: Resolvers.fetchUserByIdOrEmail,
         },
         node: nodeField
     }),
 });
+
 
 /**
  * Defining Mutation type for GraphL schema

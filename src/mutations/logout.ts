@@ -21,11 +21,18 @@ import { mutationWithClientMutationId } from 'graphql-relay';
 
 export const logout = mutationWithClientMutationId({
     name: 'logout',
+    description: 'Logs user out and invalidates token',
     inputFields: {
-        token: { type: new GraphQLNonNull(GraphQLString) },
+        token: {
+            type: new GraphQLNonNull(GraphQLString),
+            description:  'Valid auth jwt token which should be invalidated'
+        },
     },
     outputFields: {
-        status: { type: GraphQLBoolean },
+        status: {
+            type: GraphQLBoolean,
+            description: 'Logout operation success result'
+        },
     },
     mutateAndGetPayload: async (args: any, context: any) => {
         return { status: await context.auth.logout(args.token) };

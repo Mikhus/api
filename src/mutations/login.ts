@@ -18,15 +18,28 @@
  */
 import { GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
+import { userType } from '../entities';
+
+const fields = userType.getFields();
 
 export const login = mutationWithClientMutationId({
     name: 'login',
+    description: 'Logs user in and returns valid auth jwt token',
     inputFields: {
-        email: { type: new GraphQLNonNull(GraphQLString) },
-        password: { type: new GraphQLNonNull(GraphQLString) },
+        email: {
+            type: new GraphQLNonNull(GraphQLString),
+            description: fields.email.description
+        },
+        password: {
+            type: new GraphQLNonNull(GraphQLString),
+            description: fields.password.description
+        },
     },
     outputFields: {
-        token: { type: GraphQLString },
+        token: {
+            type: GraphQLString,
+            description: 'User\'s JWT authentication token'
+        },
     },
     mutateAndGetPayload: async (args: any, context: any) => {
         return { token: await context.auth.login(args.email, args.password) };

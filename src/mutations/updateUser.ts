@@ -16,12 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
-import {
-    GraphQLID,
-    GraphQLResolveInfo,
-    GraphQLString,
-    GraphQLBoolean,
-} from 'graphql';
+import { GraphQLResolveInfo } from 'graphql';
 import {
     fromGlobalId,
     mutationWithClientMutationId,
@@ -34,27 +29,26 @@ import {
     USER_LAST_NAME_EMPTY,
     USER_PASSWORD_EMPTY,
 } from '../ResponseError';
-import { selectedFields } from "../helpers";
+import { selectedFields } from '../helpers';
+import { userType } from '../entities';
+
+const userFields = userType.getFields();
+const fields: any = {};
+
+Object.keys(userFields).forEach(name => {
+    fields[name] = fields[name] || {};
+    fields[name].type = userFields[name].type;
+    fields[name].description = userFields[name].description;
+});
+
+const outFields: any = Object.assign({}, fields);
+delete outFields.password;
 
 export const updateUser = mutationWithClientMutationId({
     name: 'updateUser',
-    inputFields: {
-        id: { type: GraphQLID },
-        email: { type: GraphQLString },
-        password: { type: GraphQLString },
-        firstName: { type: GraphQLString },
-        lastName: { type: GraphQLString },
-        isAdmin: { type: GraphQLBoolean },
-        isActive: { type: GraphQLBoolean },
-    },
-    outputFields: {
-        id: { type: GraphQLID },
-        email: { type: GraphQLString },
-        firstName: { type: GraphQLString },
-        lastName: { type: GraphQLString },
-        isAdmin: { type: GraphQLBoolean },
-        isActive: { type: GraphQLBoolean },
-    },
+    description: 'Updates given user data fields with a given values',
+    inputFields: fields,
+    outputFields: outFields,
     mutateAndGetPayload: async (
         args: any,
         context: any,
