@@ -1,3 +1,41 @@
+input loginInput {
+  """User's contact email (unique)"""
+  email: String!
+
+  """User's password"""
+  password: String!
+  clientMutationId: String
+}
+
+type loginPayload {
+  """User's JWT authentication token"""
+  token: String
+  clientMutationId: String
+}
+
+input logoutInput {
+  """Valid auth jwt token which should be invalidated"""
+  token: String!
+  clientMutationId: String
+}
+
+type logoutPayload {
+  """Logout operation success result"""
+  status: Boolean
+  clientMutationId: String
+}
+
+type Mutation {
+  """Updates given user data fields with a given values"""
+  updateUser(input: updateUserInput!): updateUserPayload
+
+  """Logs user in and returns valid auth jwt token"""
+  login(input: loginInput!): loginPayload
+
+  """Logs user out and invalidates token"""
+  logout(input: logoutInput!): logoutPayload
+}
+
 """An object with an ID"""
 interface Node {
   """The id of the object."""
@@ -5,13 +43,70 @@ interface Node {
 }
 
 type Query {
-  user: [User]
+  """Fetches list of users"""
+  users: [User]
+
+  """Fetches user data by user id or email"""
+  user(
+    """User identifier. Optional. Either this identifier or email required"""
+    id: String
+
+    """
+    User email address. Optional. Either this email or identifier required
+    """
+    email: String
+  ): User
 
   """Fetches an object given its ID"""
   node(
     """The ID of an object"""
     id: ID!
   ): Node
+}
+
+input updateUserInput {
+  """The ID of an object"""
+  id: ID!
+
+  """User's first (given) name"""
+  firstName: String
+
+  """User's last (family) name"""
+  lastName: String
+
+  """User's contact email (unique)"""
+  email: String
+
+  """User's password"""
+  password: String
+
+  """User's active state flag"""
+  isActive: Boolean
+
+  """User's admin role flag"""
+  isAdmin: Boolean
+  clientMutationId: String
+}
+
+type updateUserPayload {
+  """The ID of an object"""
+  id: ID!
+
+  """User's first (given) name"""
+  firstName: String
+
+  """User's last (family) name"""
+  lastName: String
+
+  """User's contact email (unique)"""
+  email: String
+
+  """User's active state flag"""
+  isActive: Boolean
+
+  """User's admin role flag"""
+  isAdmin: Boolean
+  clientMutationId: String
 }
 
 """User entity"""
@@ -33,4 +128,7 @@ type User implements Node {
 
   """User's active state flag"""
   isActive: Boolean
+
+  """User's admin role flag"""
+  isAdmin: Boolean
 }
