@@ -19,7 +19,7 @@
     "doc": "npm run clean:doc && typedoc --excludePrivate --excludeExternals --hideGenerator --exclude \"**/+(debug|test|node_modules|docs|coverage|.nyc_output)/**/*\" --mode file --out ./docs . && npm run show:doc",
     "start": "NODE_ENV=production /usr/bin/env node ./index.js",
     "tsdev": "NODE_ENV=development ts-node index.ts",
-    "dev": "./node_modules/nodemon/bin/nodemon.js",
+    "dev": "npm run clean:dts && npm run clean:map && npm run clean:js && ./node_modules/nodemon/bin/nodemon.js",
     "docker:build": "docker build -f Dockerfile -t api .",
     "docker:run": "docker run --rm -it --name api api",
     "docker:stop": "docker stop api",
