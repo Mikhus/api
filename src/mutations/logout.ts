@@ -16,8 +16,14 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
-import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
+import {
+    GraphQLString,
+    GraphQLNonNull,
+    GraphQLBoolean,
+    GraphQLResolveInfo
+} from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
+import { ERROR_UNAUTHORIZED } from '../ResponseError';
 
 export const logout = mutationWithClientMutationId({
     name: 'logout',
@@ -29,12 +35,27 @@ export const logout = mutationWithClientMutationId({
         },
     },
     outputFields: {
-        status: {
+        success: {
             type: GraphQLBoolean,
             description: 'Logout operation success result'
         },
     },
-    mutateAndGetPayload: async (args: any, context: any) => {
-        return { status: await context.auth.logout(args.token) };
+    async mutateAndGetPayload(
+        args: any,
+        context: any,
+        info: GraphQLResolveInfo,
+    ) {
+        const { isAdmin, isActive, email } = info.rootValue;
+        let currentUser = undefined;
+
+        if (!(isAdmin && isActive)) {
+            currentUser = email;
+        }
+
+        if (!await context.auth.logout(args.token, currentUser)) {
+            throw ERROR_UNAUTHORIZED;
+        }
+
+        return { success: true };
     }
 });

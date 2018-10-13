@@ -36,7 +36,7 @@ export const userType = new GraphQLObjectType({
     name: 'User',
     description: 'User entity',
     interfaces: [nodeInterface],
-    fields: () => ({
+    fields: {
         id: globalIdField('User', (user: u.UserObject) => String(user._id)),
         firstName: {
             type: GraphQLString,
@@ -68,7 +68,7 @@ export const userType = new GraphQLObjectType({
             description: 'User\'s admin role flag',
             resolve: (user: u.UserObject) => !!user.isAdmin,
         },
-    }),
+    },
 });
 
 export const { connectionType: userConnection } =

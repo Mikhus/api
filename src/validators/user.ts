@@ -17,6 +17,8 @@
  *
  */
 import { ResponseError, ERROR_UNAUTHORIZED } from '..';
+import { fromGlobalId } from 'graphql-relay';
+import { GraphQLResolveInfo } from 'graphql';
 
 /**
  * Validates if given GraphQL request is called by admin user
@@ -40,10 +42,14 @@ export function validateAdmin(...args: any[]) {
  */
 export function validateOwner(...args: any[]) {
     const authUser: any = args[3].rootValue.authUser;
-    const data: any = args[0];
+    let data: any = args[0].authUser ? args[1] : args[0];
+    if (data.input) data = data.input;
     const isAdmin = authUser && authUser.isActive && authUser.isAdmin;
     const isOwner = (data && authUser && authUser.isActive && (
         (data._id && data._id === authUser._id) ||
+        (data.id && (
+            data.id === authUser._id ||
+            fromGlobalId(data.id).id === authUser._id)) ||
         (data.email && data.email === authUser.email) ||
         (data.user && (
             (data.user._id && data.user._id === authUser.__id) ||
@@ -54,4 +60,13 @@ export function validateOwner(...args: any[]) {
     if (!(isOwner || isAdmin)) {
         throw ERROR_UNAUTHORIZED;
     }
+}
+
+/**
+ * Alias for validateOwner but with a single argument to provide
+ *
+ * @param {GraphQLResolveInfo} requestInfo
+ */
+export function verifyRequestForOwner(requestInfo: GraphQLResolveInfo) {
+    return validateOwner(null, null, null, requestInfo);
 }

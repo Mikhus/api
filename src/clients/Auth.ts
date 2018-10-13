@@ -37,28 +37,29 @@ export namespace auth {
         /**
          * Logs user out
          *
-         * @param {string} token
+         * @param {string} token - jwt auth user token
+         * @param {string} [verifyEmail] - email to verify from a given token (if provided - must match)
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
          * @return {Promise<boolean>}
          */
         @profile()
         @remote()
-        public async logout(token: string, delay?: IMQDelay): Promise<boolean> {
+        public async logout(token: string, verifyEmail?: string, delay?: IMQDelay): Promise<boolean> {
             return await this.remoteCall<boolean>(...arguments);
         }
 
         /**
-         * Verify if user token is valid, and if so - returns an associated user
+         * *>
+         * Verifies if user token is valid, and if so - returns an associated user
          * object
          *
          * @param {string} token
-         * @param {string} password
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
          * @return {Promise<object | null>}
          */
         @profile()
         @remote()
-        public async verify(token: string, password: string, delay?: IMQDelay): Promise<object | null> {
+        public async verify(token: string, delay?: IMQDelay): Promise<object | null> {
             return await this.remoteCall<object | null>(...arguments);
         }
 

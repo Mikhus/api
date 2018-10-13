@@ -23,6 +23,7 @@ import {
     toGlobalId
 } from 'graphql-relay';
 import {
+    ERROR_UNAUTHORIZED,
     USER_DATA_EMPTY,
     USER_EMAIL_EMPTY,
     USER_FIRST_NAME_EMPTY,
@@ -31,29 +32,37 @@ import {
 } from '../ResponseError';
 import { selectedFields } from '../helpers';
 import { userType } from '../entities';
+import { FieldValidationDefinitions } from 'graphql-validity/lib';
+import { validateOwner, verifyRequestForOwner } from '../validators';
+
+FieldValidationDefinitions['Mutation:updateUser'] = [validateOwner];
 
 const userFields = userType.getFields();
-const fields: any = {};
+const inputFields: any = {};
 
 Object.keys(userFields).forEach(name => {
-    fields[name] = fields[name] || {};
-    fields[name].type = userFields[name].type;
-    fields[name].description = userFields[name].description;
+    inputFields[name] = inputFields[name] || {};
+    inputFields[name].type = userFields[name].type;
+    inputFields[name].description = userFields[name].description;
 });
 
-const outFields: any = Object.assign({}, fields);
-delete outFields.password;
+const outputFields: any = Object.assign({}, inputFields);
+delete outputFields.password;
 
 export const updateUser = mutationWithClientMutationId({
     name: 'updateUser',
     description: 'Updates given user data fields with a given values',
-    inputFields: fields,
-    outputFields: outFields,
-    mutateAndGetPayload: async (
+    inputFields,
+    outputFields,
+    async mutateAndGetPayload(
         args: any,
         context: any,
         info: GraphQLResolveInfo,
-    ) => {
+    ) {
+        if (typeof args.isAdmin !== 'undefined') {
+            verifyRequestForOwner(info);
+        }
+
         if (args.id) {
             args._id = fromGlobalId(args.id).id;
             delete args.id;

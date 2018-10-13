@@ -41,7 +41,7 @@ export const login = mutationWithClientMutationId({
             description: 'User\'s JWT authentication token'
         },
     },
-    mutateAndGetPayload: async (args: any, context: any) => {
+    async mutateAndGetPayload(args: any, context: any) {
         return { token: await context.auth.login(args.email, args.password) };
     }
 });
