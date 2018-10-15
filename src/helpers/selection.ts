@@ -14,9 +14,9 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
  */
 import { GraphQLResolveInfo } from 'graphql';
+import { clientOptions } from '../../config';
 
 /**
  * Extracts list of selected fields from a given GraphQL resolver info
@@ -29,10 +29,28 @@ import { GraphQLResolveInfo } from 'graphql';
  */
 export function selectedFields(
     info: GraphQLResolveInfo,
-    transform: { [name: string]: string | undefined } = {}
+    transform: { [name: string]: string | undefined } = {},
+    sub?: string
 ): string[] {
     const rootNode: any = info.operation.selectionSet.selections[0];
-    const fields: string[] = rootNode.selectionSet.selections
+    let selection = rootNode.selectionSet.selections;
+
+    if (sub) {
+        const child: any = selection.find(
+            (item: any) => item.name.value === sub
+        );
+
+        if (!child) {
+            const logger = clientOptions.logger || console;
+            logger.error(
+                `Fields selection sub-pattern given, but does not exist!`
+            );
+        } else {
+            selection = child.selectionSet.selections;
+        }
+    }
+
+    const fields: string[] = selection
         .map((o: any) => transform[o.name.value] || o.name.value || '')
         .filter((field: string) => !!field);
 
