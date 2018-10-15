@@ -15,36 +15,46 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-import { userType } from '../entities';
-import { GraphQLString, GraphQLList } from 'graphql';
+import { carType } from '../entities';
+import { GraphQLString, GraphQLNonNull, GraphQLList } from 'graphql';
 import { Resolvers } from '../helpers';
 
 /**
  * GraphQL Queries: user - query for a user data by id or email
  */
-export const user = {
-    description: 'Fetches user data by user id or email',
-    type: userType,
+export const car = {
+    description: 'Fetches car data by its identifier',
+    type: carType,
     args: {
         id: {
-            type: GraphQLString,
+            type: new GraphQLNonNull(GraphQLString),
             description: 'User identifier. Optional. ' +
                 'Either this identifier or email required' ,
         },
-        email: {
-            type: GraphQLString,
-            description: 'User email address. Optional. ' +
-                'Either this email or identifier required',
-        },
     },
-    resolve: Resolvers.fetchUserByIdOrEmail,
+    resolve: Resolvers.fetchCarById,
 };
 
 /**
  * GraphQL Queries: users - query for list of users
  */
-export const users = {
-    description: 'Fetches list of users',
-    type: new GraphQLList(userType),
-    resolve: Resolvers.fetchUsers
+export const cars = {
+    description: 'Fetches list of cars for a given brand',
+    type: new GraphQLList(carType),
+    args: {
+        brand: {
+            type: new GraphQLNonNull(GraphQLString),
+            description: 'Car\'s manufacturer (brand) name' ,
+        },
+    },
+    resolve: Resolvers.fetchCars,
+};
+
+/**
+ * GraphQL Queries: brands - query for listing car brands
+ */
+export const brands = {
+    description: 'Fetches list of car brands',
+    type: new GraphQLList(GraphQLString),
+    resolve: Resolvers.fetchCarBrands,
 };

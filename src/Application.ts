@@ -26,16 +26,16 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as https from 'https';
 import * as http from 'http';
-
+import { graphQLValidityExpressMiddleware } from 'graphql-validity/lib';
 import {
     requestUser,
     clientOptions,
     portOpen,
     schema,
     user,
-    auth
+    auth,
+    car
 } from '.';
-import { graphQLValidityExpressMiddleware } from 'graphql-validity/lib';
 
 /**
  * Class Application.
@@ -164,10 +164,12 @@ export class Application {
         const context: any = {
             user: new user.UserClient(clientOptions),
             auth: new auth.AuthClient(clientOptions),
+            car: new car.CarClient(clientOptions),
         };
 
         await context.user.start();
         await context.auth.start();
+        await context.car.start();
 
         return context;
     }
@@ -191,15 +193,19 @@ export class Application {
                 key: fs.readFileSync(Application.key),
                 cert: fs.readFileSync(Application.cert)
             }, app).listen(port, async () => {
-                console.log(`Listening at https://${Application.host}:${port}`);
-                console.log(`Environment: ${Application.env}`);
+                const logger = clientOptions.logger || console;
+
+                logger.log(`Listening at https://${Application.host}:${port}`);
+                logger.log(`Environment: ${Application.env}`);
             });
         }
 
         else {
             http.createServer(app).listen(port, async() => {
-                console.log(`Listening at http://${Application.host}:${port}`);
-                console.log(`Environment: ${Application.env}`);
+                const logger = clientOptions.logger || console;
+
+                logger.log(`Listening at http://${Application.host}:${port}`);
+                logger.log(`Environment: ${Application.env}`);
             });
         }
     }

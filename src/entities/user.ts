@@ -18,10 +18,7 @@
  */
 import { FieldValidationDefinitions } from 'graphql-validity/lib';
 import { validateAdmin, validateOwner } from '../validators';
-import {
-    connectionDefinitions,
-    globalIdField,
-} from "graphql-relay";
+import { connectionDefinitions, globalIdField } from 'graphql-relay';
 import { GraphQLBoolean, GraphQLObjectType, GraphQLString } from 'graphql';
 import { user as u } from '../clients';
 import { nodeInterface } from '.';

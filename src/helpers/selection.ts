@@ -29,7 +29,7 @@ import { GraphQLResolveInfo } from 'graphql';
  */
 export function selectedFields(
     info: GraphQLResolveInfo,
-    transform: { [name: string]: string | undefined }
+    transform: { [name: string]: string | undefined } = {}
 ): string[] {
     const rootNode: any = info.operation.selectionSet.selections[0];
     const fields: string[] = rootNode.selectionSet.selections

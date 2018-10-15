@@ -1,3 +1,21 @@
+"""Car entity"""
+type Car implements Node {
+  """The ID of an object"""
+  id: ID!
+
+  """Car's manufacturer"""
+  make: String
+
+  """Car's model name"""
+  model: String
+
+  """Car type (vehicle class)"""
+  type: String
+
+  """Car manufacturing years"""
+  years: [String]
+}
+
 input loginInput {
   """User's contact email (unique)"""
   email: String!
@@ -21,7 +39,7 @@ input logoutInput {
 
 type logoutPayload {
   """Logout operation success result"""
-  status: Boolean
+  success: Boolean
   clientMutationId: String
 }
 
@@ -43,6 +61,12 @@ interface Node {
 }
 
 type Query {
+  """Fetches an object given its ID"""
+  node(
+    """The ID of an object"""
+    id: ID!
+  ): Node
+
   """Fetches list of users"""
   users: [User]
 
@@ -57,11 +81,20 @@ type Query {
     email: String
   ): User
 
-  """Fetches an object given its ID"""
-  node(
-    """The ID of an object"""
-    id: ID!
-  ): Node
+  """Fetches list of cars for a given brand"""
+  cars(
+    """Car's manufacturer (brand) name"""
+    brand: String!
+  ): [Car]
+
+  """Fetches car data by its identifier"""
+  car(
+    """User identifier. Optional. Either this identifier or email required"""
+    id: String!
+  ): Car
+
+  """Fetches list of car brands"""
+  brands: [String]
 }
 
 input updateUserInput {

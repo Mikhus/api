@@ -38,7 +38,7 @@
   "author": "Imqueue Sandbox <support@imqueue.com>",
   "license": "ISC",
   "dependencies": {
-    "@imqueue/rpc": "^1.2.9",
+    "@imqueue/rpc": "^1.2.11",
     "@types/body-parser": "^1.17.0",
     "@types/compression": "0.0.36",
     "@types/core-js": "^2.5.0",

@@ -19,7 +19,7 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { fromGlobalId } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
-import { user as u } from '../clients';
+import { user as u, car as c } from '../clients';
 import { selectedFields } from './selection';
 import { clientOptions } from '../../config';
 import { ERROR_USER_FETCH_CRITERIA_INVALID } from '..';
@@ -31,7 +31,7 @@ export class Resolvers {
 
     // @ts-ignore
     // noinspection JSUnusedGlobalSymbols
-    public static logger: ILogger = clientOptions.logger;
+    public static logger: ILogger = clientOptions.logger || console;
 
     /**
      * Fetches specific node data by a specified identifier
@@ -107,5 +107,35 @@ export class Resolvers {
         );
 
         return user as Partial<u.UserObject>;
+    }
+
+    @profile()
+    public static async fetchCarById(
+        source: any,
+        args: { id: string },
+        context: any,
+        info: GraphQLResolveInfo,
+    ): Promise<Partial<c.CarObject>> {
+        return context.car.fetch(args.id, selectedFields(info));
+    }
+
+    @profile()
+    public static async fetchCars(
+        source: any,
+        args: { brand: string },
+        context: any,
+        info: GraphQLResolveInfo,
+    ): Promise<Partial<c.CarObject>[]> {
+        return context.car.list(args.brand, selectedFields(info));
+    }
+
+    @profile()
+    public static async fetchCarBrands(
+        source: any,
+        args: { brand: string },
+        context: any,
+        info: GraphQLResolveInfo,
+    ): Promise<string[]> {
+        return context.car.brands();
     }
 }

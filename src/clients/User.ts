@@ -26,6 +26,7 @@ export namespace user {
         isAdmin: boolean;
         firstName: string;
         lastName: string;
+        cars: string[];
     }
 
     export class UserClient extends IMQClient {
