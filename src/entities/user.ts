@@ -31,6 +31,7 @@ import { nodeInterface } from '.';
 
 FieldValidationDefinitions['User:password'] = [validateAdmin];
 FieldValidationDefinitions['User:email'] = [validateOwner];
+FieldValidationDefinitions['User:cars'] = [validateOwner];
 
 /**
  * GraphQL Types: User
