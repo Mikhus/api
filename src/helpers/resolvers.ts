@@ -101,8 +101,10 @@ export class Resolvers {
             throw ERROR_USER_FETCH_CRITERIA_INVALID;
         }
 
+        const criteria = args.id ? fromGlobalId(args.id).id : args.email;
+
         const user =  await context.user.fetch(
-            args.id || args.email,
+            criteria,
             selectedFields(info, { id: '_id' })
         );
 
@@ -116,7 +118,10 @@ export class Resolvers {
         context: any,
         info: GraphQLResolveInfo,
     ): Promise<Partial<c.CarObject>> {
-        return context.car.fetch(args.id, selectedFields(info));
+        return context.car.fetch(
+            fromGlobalId(args.id).id,
+            selectedFields(info)
+        );
     }
 
     @profile()
