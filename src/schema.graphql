@@ -3,10 +3,8 @@ type Car implements Node {
   """The ID of an object"""
   id: ID!
 
-  """
-  Car entity object identifier. This field used onlywhen car is associated with the User entity
-  """
-  carId: String
+  """The ID of an object"""
+  carId: ID!
 
   """Car's manufacturer"""
   make: String
