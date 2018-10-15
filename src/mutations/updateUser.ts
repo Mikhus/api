@@ -14,39 +14,56 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
  */
-import { GraphQLResolveInfo } from 'graphql';
+import {
+    GraphQLInputObjectType,
+    GraphQLList,
+    GraphQLResolveInfo,
+    GraphQLString,
+    GraphQLNonNull
+} from 'graphql';
 import {
     fromGlobalId,
     mutationWithClientMutationId,
     toGlobalId
 } from 'graphql-relay';
 import {
-    ERROR_UNAUTHORIZED,
     USER_DATA_EMPTY,
     USER_EMAIL_EMPTY,
     USER_FIRST_NAME_EMPTY,
     USER_LAST_NAME_EMPTY,
     USER_PASSWORD_EMPTY,
 } from '../ResponseError';
-import { selectedFields } from '../helpers';
+import { selectedFields, toOutputFields } from '../helpers';
 import { userType } from '../entities';
 import { FieldValidationDefinitions } from 'graphql-validity/lib';
 import { validateOwner, verifyRequestForOwner } from '../validators';
+import { toInputFields } from '../helpers';
 
 FieldValidationDefinitions['Mutation:updateUser'] = [validateOwner];
 
-const userFields = userType.getFields();
-const inputFields: any = {};
+const inputFields: any = toInputFields(userType);
+delete inputFields.cars;
 
-Object.keys(userFields).forEach(name => {
-    inputFields[name] = inputFields[name] || {};
-    inputFields[name].type = userFields[name].type;
-    inputFields[name].description = userFields[name].description;
-});
+inputFields.cars = {
+    type: new GraphQLList(new GraphQLInputObjectType({
+        name: 'UserCar',
+        description: 'User car association object',
+        fields: {
+            carId: {
+                type: new GraphQLNonNull(GraphQLString),
+                description: 'Identifier of car object from cars database',
+            },
+            regNumber: {
+                type: new GraphQLNonNull(GraphQLString),
+                description: 'Car registration number',
+            },
+        },
+    })),
+    description: 'List of cars associated with the user',
+};
 
-const outputFields: any = Object.assign({}, inputFields);
+const outputFields: any = toOutputFields(userType);
 delete outputFields.password;
 
 /**

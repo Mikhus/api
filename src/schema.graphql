@@ -13,7 +13,12 @@ type Car implements Node {
   type: String
 
   """Car manufacturing years"""
-  years: [String]
+  years: [Int]
+
+  """
+  Registration number. This field used only when car is associated with the User object
+  """
+  regNumber: String
 }
 
 input loginInput {
@@ -118,6 +123,9 @@ input updateUserInput {
 
   """User's admin role flag"""
   isAdmin: Boolean
+
+  """List of cars associated with the user"""
+  cars: [UserCar]
   clientMutationId: String
 }
 
@@ -139,6 +147,9 @@ type updateUserPayload {
 
   """User's admin role flag"""
   isAdmin: Boolean
+
+  """User cars list"""
+  cars: [Car]
   clientMutationId: String
 }
 
@@ -164,4 +175,16 @@ type User implements Node {
 
   """User's admin role flag"""
   isAdmin: Boolean
+
+  """User cars list"""
+  cars: [Car]
+}
+
+"""User car association object"""
+input UserCar {
+  """Identifier of car object from cars database"""
+  carId: String!
+
+  """Car registration number"""
+  regNumber: String!
 }

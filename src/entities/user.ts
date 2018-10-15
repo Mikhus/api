@@ -19,8 +19,14 @@
 import { FieldValidationDefinitions } from 'graphql-validity/lib';
 import { validateAdmin, validateOwner } from '../validators';
 import { connectionDefinitions, globalIdField } from 'graphql-relay';
-import { GraphQLBoolean, GraphQLObjectType, GraphQLString } from 'graphql';
-import { user as u } from '../clients';
+import {
+    GraphQLBoolean,
+    GraphQLObjectType,
+    GraphQLString,
+    GraphQLList,
+} from 'graphql';
+import { user as u, car as c } from '../clients';
+import { carType } from './car';
 import { nodeInterface } from '.';
 
 FieldValidationDefinitions['User:password'] = [validateAdmin];
@@ -65,6 +71,16 @@ export const userType = new GraphQLObjectType({
             description: 'User\'s admin role flag',
             resolve: (user: u.UserObject) => !!user.isAdmin,
         },
+        cars: {
+            type: new GraphQLList(carType),
+            description: 'User cars list',
+            resolve: async (user: u.UserObject, args: any, context: any) =>
+                (user.cars || []).map(async (car: u.UserCarObject) => {
+                    const obj: c.CarObject = await context.car.fetch(car.carId);
+                    (obj as any).regNumber = car.regNumber;
+                    return obj;
+                })
+        }
     },
 });
 

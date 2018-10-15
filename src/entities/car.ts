@@ -17,9 +17,14 @@
  *
  */
 import { connectionDefinitions, globalIdField } from 'graphql-relay';
-import { GraphQLList, GraphQLObjectType, GraphQLString } from 'graphql';
-import { car as c } from '../clients';
+import {
+    GraphQLInt,
+    GraphQLList,
+    GraphQLObjectType,
+    GraphQLString
+} from 'graphql';
 import { nodeInterface } from '.';
+import { car as c } from '..';
 
 /**
  * GraphQL Types: User
@@ -46,9 +51,15 @@ export const carType = new GraphQLObjectType({
             resolve: (car: c.CarObject) => car.type,
         },
         years: {
-            type: new GraphQLList(GraphQLString),
+            type: new GraphQLList(GraphQLInt),
             description: 'Car manufacturing years',
             resolve: (car: c.CarObject) => car.years,
+        },
+        regNumber: {
+            type: GraphQLString,
+            description: 'Registration number. This field used only when ' +
+                'car is associated with the User object',
+            resolve: (car: any) => car.regNumber || null,
         },
     },
 });

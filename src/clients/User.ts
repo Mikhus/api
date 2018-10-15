@@ -18,6 +18,11 @@
 import { IMQClient, IMQDelay, remote, profile } from '@imqueue/rpc';
 
 export namespace user {
+    export interface UserCarObject {
+        carId: string;
+        regNumber: string;
+    }
+
     export interface UserObject {
         _id?: string;
         email: string;
@@ -26,7 +31,7 @@ export namespace user {
         isAdmin: boolean;
         firstName: string;
         lastName: string;
-        cars: string[];
+        cars: UserCarObject[];
     }
 
     export class UserClient extends IMQClient {

@@ -97,8 +97,14 @@ export class Resolvers {
         context: any,
         info: GraphQLResolveInfo,
     ): Promise<Partial<u.UserObject>> {
+        const authUser = (info.rootValue as any).authUser;
+
         if (!(args.id || args.email)) {
-            throw ERROR_USER_FETCH_CRITERIA_INVALID;
+            if (authUser) {
+                args.email = authUser.email;
+            } else {
+                throw ERROR_USER_FETCH_CRITERIA_INVALID;
+            }
         }
 
         const criteria = args.id ? fromGlobalId(args.id).id : args.email;
