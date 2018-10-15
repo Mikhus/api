@@ -14,10 +14,20 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
  */
 import * as express from 'express';
 
+/**
+ * Express middleware for adding user data to request if
+ * request headers contain valid jwt auth token
+ *
+ * @param {any} context
+ * @return {(
+ *  req: express.Request,
+ *  res: express.Response,
+ *  next: any
+ * ) => Promise<void>}
+ */
 export function requestUser(context: any) {
     return async (
         req: express.Request,
