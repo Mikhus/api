@@ -111,6 +111,15 @@ export class Resolvers {
         return user as Partial<u.UserObject>;
     }
 
+    /**
+     * Fetches car entity by its identifier
+     *
+     * @param {any} source
+     * @param {{ id: string }} args
+     * @param {any} context
+     * @param {GraphQLResolveInfo} info
+     * @return {Promise<Partial<c.CarObject>>}
+     */
     @profile()
     public static async fetchCarById(
         source: any,
@@ -124,6 +133,15 @@ export class Resolvers {
         );
     }
 
+    /**
+     * Fetches list of cars entities for a given brand
+     *
+     * @param {any} source
+     * @param {{ brand: string }} args
+     * @param {any} context
+     * @param {GraphQLResolveInfo} info
+     * @return {Promise<Partial<c.CarObject>[]>}
+     */
     @profile()
     public static async fetchCars(
         source: any,
@@ -134,6 +152,15 @@ export class Resolvers {
         return context.car.list(args.brand, selectedFields(info));
     }
 
+    /**
+     * Fetches car brand (manufacturer) names
+     *
+     * @param {any} source
+     * @param {{ id?: string, email?: string }} args
+     * @param {any} context
+     * @param {GraphQLResolveInfo} info
+     * @return {Promise<string[]>}
+     */
     @profile()
     public static async fetchCarBrands(
         source: any,
