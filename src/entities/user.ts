@@ -23,12 +23,12 @@ import {
     GraphQLBoolean,
     GraphQLObjectType,
     GraphQLString,
-    GraphQLList, GraphQLResolveInfo,
+    GraphQLList,
 } from 'graphql';
-import { user as u, car as c } from '../clients';
+import { user as u } from '../clients';
 import { carType } from './car';
 import { nodeInterface } from '.';
-import { selectedFields } from "../helpers";
+import { Resolvers } from '../helpers';
 
 FieldValidationDefinitions['User:password'] = [validateAdmin];
 FieldValidationDefinitions['User:email'] = [validateOwner];
@@ -76,18 +76,7 @@ export const userType = new GraphQLObjectType({
         cars: {
             type: new GraphQLList(carType),
             description: 'User cars list',
-            resolve: async (
-                user: u.UserObject,
-                args: any,
-                context: any,
-                info: GraphQLResolveInfo
-            ) =>
-                (user.cars || []).map(async (car: u.UserCarObject) => {
-                    const obj: c.CarObject = await context.car.fetch(
-                        car.carId, selectedFields(info, {}, 'cars'));
-                    (obj as any).regNumber = car.regNumber;
-                    return obj;
-                })
+            resolve: Resolvers.carsCollection
         }
     },
 });

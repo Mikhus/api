@@ -19,6 +19,7 @@ import { IMQClient, IMQDelay, remote, profile } from '@imqueue/rpc';
 
 export namespace user {
     export interface UserCarObject {
+        _id: string;
         carId: string;
         regNumber: string;
     }

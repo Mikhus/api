@@ -3,6 +3,11 @@ type Car implements Node {
   """The ID of an object"""
   id: ID!
 
+  """
+  Car entity object identifier. This field used onlywhen car is associated with the User entity
+  """
+  carId: String
+
   """Car's manufacturer"""
   make: String
 
@@ -16,7 +21,7 @@ type Car implements Node {
   years: [Int]
 
   """
-  Registration number. This field used only when car is associated with the User object
+  Registration number. This field used only when car is associated with the User entity
   """
   regNumber: String
 }

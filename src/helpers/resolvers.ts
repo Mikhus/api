@@ -175,4 +175,40 @@ export class Resolvers {
     ): Promise<string[]> {
         return context.car.brands();
     }
+
+    /**
+     * Resolves nested cars collection on user entity
+     *
+     * @param {u.UserObject} user
+     * @param {any} args
+     * @param {any} context
+     * @param {GraphQLResolveInfo} info
+     */
+    @profile()
+    public static async carsCollection(
+        user: u.UserObject,
+        args: any,
+        context: any,
+        info: GraphQLResolveInfo
+    ) {
+        return (user.cars || []).map(async (car: u.UserCarObject) => {
+            const fields = selectedFields(info, {}, 'cars');
+            const obj: c.CarObject = await context.car.fetch(
+                car.carId, fields);
+
+            if (~fields.indexOf('carId')) {
+                (obj as any).carId = obj.id;
+            }
+
+            if (~fields.indexOf('id')) {
+                obj.id = car._id;
+            } else {
+                delete obj.id;
+            }
+
+            (obj as any).regNumber = car.regNumber;
+
+            return obj;
+        })
+    }
 }

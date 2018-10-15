@@ -24,7 +24,7 @@ import {
     GraphQLString
 } from 'graphql';
 import { nodeInterface } from '.';
-import { car as c } from '..';
+import { car as c, user as u } from '..';
 
 /**
  * GraphQL Types: User
@@ -34,7 +34,14 @@ export const carType = new GraphQLObjectType({
     description: 'Car entity',
     interfaces: [nodeInterface],
     fields: {
-        id: globalIdField('Car', (car: c.CarObject) => car.id),
+        id: globalIdField('Car', (car: c.CarObject | u.UserCarObject) =>
+            (car as any)._id ? (car as any)._id : (car as any).id),
+        carId: {
+            type: GraphQLString,
+            description: 'Car entity object identifier. This field used only' +
+                'when car is associated with the User entity',
+            resolve: (car: u.UserCarObject) => car.carId
+        },
         make: {
             type: GraphQLString,
             description: 'Car\'s manufacturer',
@@ -58,8 +65,8 @@ export const carType = new GraphQLObjectType({
         regNumber: {
             type: GraphQLString,
             description: 'Registration number. This field used only when ' +
-                'car is associated with the User object',
-            resolve: (car: any) => car.regNumber || null,
+                'car is associated with the User entity',
+            resolve: (car: u.UserCarObject) => car.regNumber || null,
         },
     },
 });
