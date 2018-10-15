@@ -197,7 +197,7 @@ export class Resolvers {
                 car.carId, fields);
 
             if (~fields.indexOf('carId')) {
-                (obj as any).carId = toGlobalId('Car', obj.id);
+                (obj as any).carId = toGlobalId('CarNode', obj.id);
             }
 
             if (~fields.indexOf('id')) {
