@@ -25,6 +25,9 @@ import {
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { ERROR_UNAUTHORIZED } from '../ResponseError';
 
+/**
+ * GraphQL Mutation: logout - logs user out by a given token
+ */
 export const logout = mutationWithClientMutationId({
     name: 'logout',
     description: 'Logs user out and invalidates token',

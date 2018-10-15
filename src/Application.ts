@@ -37,6 +37,10 @@ import {
 } from '.';
 import { graphQLValidityExpressMiddleware } from 'graphql-validity/lib';
 
+/**
+ * Class Application.
+ * Implements express/graphql application bootstrap and execution.
+ */
 export class Application {
 
     /**

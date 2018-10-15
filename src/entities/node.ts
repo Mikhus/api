@@ -19,5 +19,8 @@
 import { nodeDefinitions } from 'graphql-relay';
 import { Resolvers } from '../helpers';
 
+/**
+ * GraphQL Types: node
+ */
 export const { nodeInterface, nodeField } =
     nodeDefinitions(Resolvers.fetchNodeById);

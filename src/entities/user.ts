@@ -30,7 +30,7 @@ FieldValidationDefinitions['User:password'] = [validateAdmin];
 FieldValidationDefinitions['User:email'] = [validateOwner];
 
 /**
- * User type definition for GraphQL schema
+ * GraphQL Types: User
  */
 export const userType = new GraphQLObjectType({
     name: 'User',

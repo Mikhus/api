@@ -16,6 +16,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
+/**
+ * Class ResponseError.
+ * Implements generic custom GraphQL response error interface
+ */
 export class ResponseError extends Error {
     public extensions: { [name:string]: any } = {};
 

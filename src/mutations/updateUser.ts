@@ -49,6 +49,9 @@ Object.keys(userFields).forEach(name => {
 const outputFields: any = Object.assign({}, inputFields);
 delete outputFields.password;
 
+/**
+ * GraphQL Mutation: updateUser - modifies user data
+ */
 export const updateUser = mutationWithClientMutationId({
     name: 'updateUser',
     description: 'Updates given user data fields with a given values',

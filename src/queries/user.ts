@@ -19,6 +19,9 @@ import { userType } from '../entities';
 import { GraphQLString } from 'graphql';
 import { Resolvers } from '../helpers';
 
+/**
+ * GraphQL Queries: user - query for a user data by id or email
+ */
 export const user = {
     description: 'Fetches user data by user id or email',
     type: userType,

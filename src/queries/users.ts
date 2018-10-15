@@ -19,6 +19,9 @@ import { GraphQLList } from "graphql";
 import { userType } from "../entities";
 import { Resolvers } from "../helpers";
 
+/**
+ * GraphQL Queries: users - query for list of users
+ */
 export const users = {
     description: 'Fetches list of users',
     type: new GraphQLList(userType),

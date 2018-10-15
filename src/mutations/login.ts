@@ -22,6 +22,9 @@ import { userType } from '../entities';
 
 const fields = userType.getFields();
 
+/**
+ * GraphQL Mutation: login - logs user in using given credentials
+ */
 export const login = mutationWithClientMutationId({
     name: 'login',
     description: 'Logs user in and returns valid auth jwt token',
