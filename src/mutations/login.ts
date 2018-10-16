@@ -16,11 +16,27 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
-import { GraphQLString, GraphQLNonNull } from 'graphql';
+import { GraphQLString, GraphQLNonNull, GraphQLResolveInfo } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { userType } from '../entities';
+import { selectedFields, toOutputFields } from '../helpers';
 
-const fields = userType.getFields();
+const outputFields: any = toOutputFields(userType);
+const inputFields: any = {
+    email: {
+        type: new GraphQLNonNull(GraphQLString),
+            description: outputFields.email.description
+    },
+    password: {
+        type: new GraphQLNonNull(GraphQLString),
+            description: outputFields.password.description
+    },
+};
+outputFields.token = {
+    type: GraphQLString,
+    description: 'User\'s JWT authentication token'
+};
+delete outputFields.password;
 
 /**
  * GraphQL Mutation: login - logs user in using given credentials
@@ -28,23 +44,26 @@ const fields = userType.getFields();
 export const login = mutationWithClientMutationId({
     name: 'login',
     description: 'Logs user in and returns valid auth jwt token',
-    inputFields: {
-        email: {
-            type: new GraphQLNonNull(GraphQLString),
-            description: fields.email.description
-        },
-        password: {
-            type: new GraphQLNonNull(GraphQLString),
-            description: fields.password.description
-        },
-    },
-    outputFields: {
-        token: {
-            type: GraphQLString,
-            description: 'User\'s JWT authentication token'
-        },
-    },
-    async mutateAndGetPayload(args: any, context: any) {
-        return { token: await context.auth.login(args.email, args.password) };
+    inputFields,
+    outputFields,
+    async mutateAndGetPayload(
+        args: any,
+        context: any,
+        info: GraphQLResolveInfo,
+    ) {
+        const token = await context.auth.login(args.email, args.password);
+
+        if (!token) {
+            return null;
+        }
+
+        const user: any = await context.user.fetch(
+            args.email,
+            selectedFields(info, { _id: 'id' })
+        );
+
+        user.token = token;
+
+        return user;
     }
 });

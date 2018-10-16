@@ -151,6 +151,21 @@ export class Application {
             limit: '20mb',
         }));
         app.use(helmet());
+        app.use((req, res, next) => {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header(
+                "Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept, x-philz-admin"
+            );
+
+            if ('OPTIONS' === req.method) {
+                res.sendStatus(200);
+            }
+
+            else {
+                next();
+            }
+        })
         app.use(requestUser(context));
         app.use(graphQLValidityExpressMiddleware);
     }
