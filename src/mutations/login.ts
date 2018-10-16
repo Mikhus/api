@@ -51,16 +51,17 @@ export const login = mutationWithClientMutationId({
         context: any,
         info: GraphQLResolveInfo,
     ) {
-        const token = await context.auth.login(args.email, args.password);
+        const [ token, user ]: any = await Promise.all([
+            context.auth.login(args.email, args.password),
+            context.user.fetch(
+                args.email,
+                selectedFields(info, { _id: 'id' })
+            )
+        ]);
 
-        if (!token) {
+        if (!(token && user)) {
             return null;
         }
-
-        const user: any = await context.user.fetch(
-            args.email,
-            selectedFields(info, { _id: 'id' })
-        );
 
         user.token = token;
 
