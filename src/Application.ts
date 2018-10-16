@@ -152,10 +152,10 @@ export class Application {
         }));
         app.use(helmet());
         app.use((req, res, next) => {
-            res.header("Access-Control-Allow-Origin", "*");
+            res.header('Access-Control-Allow-Origin', '*');
             res.header(
-                "Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept, x-philz-admin"
+                'Access-Control-Allow-Headers',
+                'Origin, X-Requested-With, Content-Type, Accept, X-Auth-User'
             );
 
             if ('OPTIONS' === req.method) {
