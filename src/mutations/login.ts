@@ -20,6 +20,11 @@ import { GraphQLString, GraphQLNonNull, GraphQLResolveInfo } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { userType } from '../entities';
 import { selectedFields } from '../helpers';
+import {
+    INVALID_CREDENTIALS,
+    USER_EMAIL_EMPTY,
+    USER_PASSWORD_EMPTY,
+} from '../ResponseError';
 
 const fields: any = userType.getFields();
 
@@ -54,6 +59,14 @@ export const login = mutationWithClientMutationId({
         context: any,
         info: GraphQLResolveInfo,
     ) {
+        if (!args.email) {
+            throw USER_EMAIL_EMPTY;
+        }
+
+        if (!args.password) {
+            throw USER_PASSWORD_EMPTY;
+        }
+
         const [ token, user ]: any = await Promise.all([
             context.auth.login(args.email, args.password),
             context.user.fetch(
@@ -63,7 +76,7 @@ export const login = mutationWithClientMutationId({
         ]);
 
         if (!(token && user)) {
-            return null;
+            throw INVALID_CREDENTIALS;
         }
 
         return { user, token };

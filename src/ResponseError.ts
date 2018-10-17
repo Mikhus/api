@@ -30,6 +30,10 @@ export class ResponseError extends Error {
 }
 
 export const ERROR_UNAUTHORIZED = new ResponseError('Unauthorized', 401);
+export const INVALID_CREDENTIALS = new ResponseError(
+    'Given credentials are invalid!',
+    'INVALID_CREDENTIALS'
+);
 export const ERROR_USER_FETCH_CRITERIA_INVALID = new ResponseError(
     'Either user identifier or email required', 400
 );
