@@ -58,7 +58,7 @@ export const login = mutationWithClientMutationId({
             context.auth.login(args.email, args.password),
             context.user.fetch(
                 args.email,
-                selectedFields(info, { _id: 'id' })
+                selectedFields(info, { id: '_id' }, 'user')
             )
         ]);
 

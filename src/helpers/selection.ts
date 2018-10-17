@@ -16,11 +16,39 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import {
+    FieldNode,
     GraphQLInputObjectType,
     GraphQLList,
     GraphQLObjectType,
-    GraphQLResolveInfo
+    GraphQLResolveInfo,
+    SelectionNode,
 } from 'graphql';
+
+/**
+ * Look-ups for a nested selection in a given using provided
+ * selection path. Selection path is dot-notated string, like:
+ * 'user.cars', etc...
+ *
+ * @param { SelectionNode[]} selection
+ * @param {string} path
+ */
+function selectPath(selection: SelectionNode[], path: string) {
+    const nodes = path.split('.');
+
+    if (nodes && nodes.length) {
+        for (let i = 0; i < nodes.length; i++) {
+            const child: any = selection.find(
+                (node: FieldNode) => node.name.value === nodes[i]
+            );
+
+            if (child) {
+                selection = child.selectionSet.selections;
+            }
+        }
+    }
+
+    return selection;
+}
 
 /**
  * Extracts list of selected fields from a given GraphQL resolver info
@@ -29,11 +57,13 @@ import {
  *
  * @param {GraphQLResolveInfo} info - GraphQL resolver info object
  * @param {{ [name: string]: string }} transform - object describing field names mapping
+ * @param {string} path - path to nested selection if required
  * @return {string[]} - array of field names
  */
 export function selectedFields(
     info: GraphQLResolveInfo,
-    transform: { [name: string]: string | undefined } = {}
+    transform: { [name: string]: string | undefined } = {},
+    path?: string
 ): string[] {
     const { fieldName, fieldNodes, returnType } = info;
     let selection = (fieldNodes.find(
@@ -61,6 +91,10 @@ export function selectedFields(
         }
 
         return Object.keys(type.getFields());
+    }
+
+    if (path) {
+        selection = selectPath(selection, path);
     }
 
     const fields: string[] = selection
