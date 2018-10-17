@@ -20,6 +20,20 @@ import { ResponseError, ERROR_UNAUTHORIZED } from '..';
 import { fromGlobalId } from 'graphql-relay';
 import { GraphQLResolveInfo } from 'graphql';
 
+export const RX_LOGIN_MUTATION: RegExp = /mutation\s.*?\{\s*login\s*\(/;
+
+/**
+ * Checks if a given request is a login mutation
+ *
+ * @param {GraphQLResolveInfo} info
+ * @return {boolean}
+ */
+export function isLoginMutation(info: GraphQLResolveInfo) {
+    const query = (((info || {} as any).rootValue || {} as any).body as any)
+        .query;
+    return RX_LOGIN_MUTATION.test(query);
+}
+
 /**
  * Validates if given GraphQL request is called by admin user
  *
@@ -27,6 +41,10 @@ import { GraphQLResolveInfo } from 'graphql';
  * @throws {RequestError}
  */
 export function validateAdmin(...args: any[]) {
+    if (isLoginMutation(args[3])) {
+        return;
+    }
+
     const user: any = args[3].rootValue.authUser;
 
     if (!(user && user.isActive && user.isAdmin)) {
@@ -41,6 +59,10 @@ export function validateAdmin(...args: any[]) {
  *  @throws {ResponseError}
  */
 export function validateOwner(...args: any[]) {
+    if (isLoginMutation(args[3])) {
+        return;
+    }
+
     const authUser: any = args[3].rootValue.authUser;
     let data: any = args[0].authUser ? args[1] : args[0];
     if (data.input) data = data.input;

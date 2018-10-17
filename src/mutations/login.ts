@@ -19,24 +19,9 @@
 import { GraphQLString, GraphQLNonNull, GraphQLResolveInfo } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import { userType } from '../entities';
-import { selectedFields, toOutputFields } from '../helpers';
+import { selectedFields } from '../helpers';
 
-const outputFields: any = toOutputFields(userType);
-const inputFields: any = {
-    email: {
-        type: new GraphQLNonNull(GraphQLString),
-            description: outputFields.email.description
-    },
-    password: {
-        type: new GraphQLNonNull(GraphQLString),
-            description: outputFields.password.description
-    },
-};
-outputFields.token = {
-    type: GraphQLString,
-    description: 'User\'s JWT authentication token'
-};
-delete outputFields.password;
+const fields: any = userType.getFields();
 
 /**
  * GraphQL Mutation: login - logs user in using given credentials
@@ -44,8 +29,26 @@ delete outputFields.password;
 export const login = mutationWithClientMutationId({
     name: 'login',
     description: 'Logs user in and returns valid auth jwt token',
-    inputFields,
-    outputFields,
+    inputFields: {
+        email: {
+            type: new GraphQLNonNull(GraphQLString),
+            description: fields.email.description
+        },
+        password: {
+            type: new GraphQLNonNull(GraphQLString),
+            description: fields.password.description
+        },
+    },
+    outputFields: {
+        token: {
+            type: GraphQLString,
+            description: 'User\'s authentication token'
+        },
+        user: {
+            type: userType,
+            description: 'Authenticated user'
+        },
+    },
     async mutateAndGetPayload(
         args: any,
         context: any,
@@ -55,7 +58,7 @@ export const login = mutationWithClientMutationId({
             context.auth.login(args.email, args.password),
             context.user.fetch(
                 args.email,
-                selectedFields(info, { _id: 'id' })
+                selectedFields(info, { _id: 'id' }, 'user')
             )
         ]);
 
@@ -63,8 +66,6 @@ export const login = mutationWithClientMutationId({
             return null;
         }
 
-        user.token = token;
-
-        return user;
+        return { user, token };
     }
 });
