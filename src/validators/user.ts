@@ -20,7 +20,7 @@ import { ResponseError, ERROR_UNAUTHORIZED } from '..';
 import { fromGlobalId } from 'graphql-relay';
 import { GraphQLResolveInfo } from 'graphql';
 
-export const RX_LOGIN_MUTATION: RegExp = /mutation\s.*?\{\s*login\s*\(/;
+export const RX_LOGIN_MUTATION: RegExp = /mutation\s[\s\S]*\{\s*login\s*\(/;
 
 /**
  * Checks if a given request is a login mutation
