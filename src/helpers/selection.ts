@@ -15,8 +15,12 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-import { GraphQLResolveInfo } from 'graphql';
-import { clientOptions } from '../../config';
+import {
+    GraphQLInputObjectType,
+    GraphQLList,
+    GraphQLObjectType,
+    GraphQLResolveInfo
+} from 'graphql';
 
 /**
  * Extracts list of selected fields from a given GraphQL resolver info
@@ -29,25 +33,34 @@ import { clientOptions } from '../../config';
  */
 export function selectedFields(
     info: GraphQLResolveInfo,
-    transform: { [name: string]: string | undefined } = {},
-    sub?: string
+    transform: { [name: string]: string | undefined } = {}
 ): string[] {
-    const rootNode: any = info.operation.selectionSet.selections[0];
-    let selection = rootNode.selectionSet.selections;
+    const { fieldName, fieldNodes, returnType } = info;
+    let selection = (fieldNodes.find(
+        (node: any) => node.name.value === fieldName
+    ) as any || { selectionSet: {} }).selectionSet.selections;
 
-    if (sub) {
-        const child: any = selection.find(
-            (item: any) => item.name.value === sub
-        );
+    if (!selection) {
+        // request is broken, handle it carefully
+        // usually this piece of code should never be executed
+        // we just need to make sure that if it happen for some
+        // unpredictable reason, our request will not be broken
+        let type: any;
 
-        if (!child) {
-            const logger = clientOptions.logger || console;
-            logger.error(
-                `Fields selection sub-pattern given, but does not exist!`
-            );
-        } else {
-            selection = child.selectionSet.selections;
+        if (returnType instanceof GraphQLList) {
+            type = (returnType as any).ofType;
+        } else if (
+            returnType instanceof GraphQLObjectType ||
+            returnType instanceof GraphQLInputObjectType
+        ) {
+            type = returnType;
         }
+
+        if (!(type && type.getFields)) {
+            return [];
+        }
+
+        return Object.keys(type.getFields());
     }
 
     const fields: string[] = selection

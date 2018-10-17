@@ -192,7 +192,7 @@ export class Resolvers {
         info: GraphQLResolveInfo
     ) {
         return (user.cars || []).map(async (car: u.UserCarObject) => {
-            const fields = selectedFields(info, {}, 'cars');
+            const fields = selectedFields(info);
             const obj: c.CarObject = await context.car.fetch(
                 car.carId, fields);
 
