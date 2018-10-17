@@ -16,7 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import { GraphQLResolveInfo } from 'graphql';
-import { fromGlobalId, toGlobalId } from 'graphql-relay';
+import { fromGlobalId } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
 import { user as u, car as c } from '../clients';
 import { selectedFields } from './selection';
