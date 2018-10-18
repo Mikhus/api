@@ -25,7 +25,8 @@ import {
     USER_EMAIL_EMPTY,
     USER_PASSWORD_EMPTY,
     USER_ACCOUNT_BLOCKED,
-    USER_PASSWORD_MISMATCH, ResponseError,
+    USER_PASSWORD_MISMATCH,
+    ResponseError,
 } from '../ResponseError';
 
 const fields: any = userType.getFields();
