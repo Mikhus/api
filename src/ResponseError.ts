@@ -61,3 +61,7 @@ export const USER_LAST_NAME_EMPTY = new ResponseError(
     'User\'s last (family) name is missing',
     'USER_LAST_NAME_ERROR'
 );
+export const USER_ACCOUNT_BLOCKED = new ResponseError(
+    'This account is blocked',
+    'USER_LOGIN_ERROR'
+);

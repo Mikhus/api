@@ -24,6 +24,7 @@ import {
     INVALID_CREDENTIALS,
     USER_EMAIL_EMPTY,
     USER_PASSWORD_EMPTY,
+    USER_ACCOUNT_BLOCKED,
 } from '../ResponseError';
 
 const fields: any = userType.getFields();
@@ -77,6 +78,10 @@ export const login = mutationWithClientMutationId({
 
         if (!(token && user)) {
             throw INVALID_CREDENTIALS;
+        }
+
+        if (!user.isActive) {
+            throw USER_ACCOUNT_BLOCKED;
         }
 
         return { user, token };
