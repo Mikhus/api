@@ -25,9 +25,14 @@ import {
     USER_EMAIL_EMPTY,
     USER_PASSWORD_EMPTY,
     USER_ACCOUNT_BLOCKED,
+    USER_PASSWORD_MISMATCH, ResponseError,
 } from '../ResponseError';
 
 const fields: any = userType.getFields();
+const [RX_BLOCKED, RX_MISMATCH] = [
+    /blocked/i,
+    /password mismatch/i,
+];
 
 /**
  * GraphQL Mutation: login - logs user in using given credentials
@@ -75,8 +80,15 @@ export const login = mutationWithClientMutationId({
                 selectedFields(info, { id: '_id' }, 'user')
             )
         ]).catch((err: Error) => {
-            if (/blocked/i.test(err.message)) {
+            if (RX_BLOCKED.test(err.message)) {
                 throw USER_ACCOUNT_BLOCKED;
+            } else if (RX_MISMATCH.test(err.message)) {
+                throw USER_PASSWORD_MISMATCH;
+            } else {
+                throw new ResponseError(
+                    err.message,
+                    'USER_CREDENTIALS_ERROR'
+                );
             }
         });
 

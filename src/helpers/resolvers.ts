@@ -21,7 +21,7 @@ import { ILogger, profile } from '@imqueue/rpc';
 import { user as u, car as c } from '../clients';
 import { selectedFields } from './selection';
 import { clientOptions } from '../../config';
-import { ERROR_USER_FETCH_CRITERIA_INVALID } from '..';
+import { INVALID_CREDENTIALS } from '..';
 
 /**
  * Implementation of specific resolvers for  GraphQL schema
@@ -102,7 +102,7 @@ export class Resolvers {
             if (authUser) {
                 args.email = authUser.email;
             } else {
-                throw ERROR_USER_FETCH_CRITERIA_INVALID;
+                throw INVALID_CREDENTIALS;
             }
         }
 
