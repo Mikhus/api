@@ -126,8 +126,7 @@ export const updateUser = mutationWithClientMutationId({
                 args, selectedFields(info, { id: '_id' }, 'user')
             );
 
-            user.id = toGlobalId('User', user._id);
-            delete user._id;
+            user._id = toGlobalId('User', user._id);
 
             return { user };
         } catch (err) {
