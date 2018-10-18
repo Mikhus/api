@@ -74,7 +74,11 @@ export const login = mutationWithClientMutationId({
                 args.email,
                 selectedFields(info, { id: '_id' }, 'user')
             )
-        ]);
+        ]).catch((err: Error) => {
+            if (/blocked/i.test(err.message)) {
+                throw USER_ACCOUNT_BLOCKED;
+            }
+        });
 
         if (!(token && user)) {
             throw INVALID_CREDENTIALS;
