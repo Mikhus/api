@@ -20,7 +20,10 @@ import { ResponseError, ERROR_UNAUTHORIZED } from '..';
 import { fromGlobalId } from 'graphql-relay';
 import { GraphQLResolveInfo } from 'graphql';
 
-export const RX_LOGIN_MUTATION: RegExp = /mutation\s[\s\S]*\{\s*login\s*\(/;
+export const RX_LOGIN_MUTATION: RegExp =
+    /mutation\s[\s\S]*\{\s*login\s*\(/;
+export const RX_UPDATE_MUTATION: RegExp =
+    /mutation\s[\s\S]*\{\s*updateUser\s*\(/;
 
 /**
  * Checks if a given request is a login mutation
@@ -28,10 +31,14 @@ export const RX_LOGIN_MUTATION: RegExp = /mutation\s[\s\S]*\{\s*login\s*\(/;
  * @param {GraphQLResolveInfo} info
  * @return {boolean}
  */
-export function isLoginMutation(info: GraphQLResolveInfo) {
-    const query = (((info || {} as any).rootValue || {} as any).body as any)
-        .query;
-    return RX_LOGIN_MUTATION.test(query);
+export function isOwnMutation(info: GraphQLResolveInfo) {
+    const query =
+        (((info || {} as any).rootValue || {} as any).body as any).query;
+
+    return [
+        RX_LOGIN_MUTATION,
+        RX_UPDATE_MUTATION
+    ].every(rx => rx.test(query));
 }
 
 /**
@@ -41,7 +48,7 @@ export function isLoginMutation(info: GraphQLResolveInfo) {
  * @throws {RequestError}
  */
 export function validateAdmin(...args: any[]) {
-    if (isLoginMutation(args[3])) {
+    if (isOwnMutation(args[3])) {
         return;
     }
 
@@ -59,7 +66,7 @@ export function validateAdmin(...args: any[]) {
  *  @throws {ResponseError}
  */
 export function validateOwner(...args: any[]) {
-    if (isLoginMutation(args[3])) {
+    if (isOwnMutation(args[3])) {
         return;
     }
 

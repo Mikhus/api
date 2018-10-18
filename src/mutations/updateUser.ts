@@ -20,7 +20,8 @@ import {
     GraphQLList,
     GraphQLResolveInfo,
     GraphQLString,
-    GraphQLNonNull
+    GraphQLNonNull,
+    GraphQLID,
 } from 'graphql';
 import {
     fromGlobalId,
@@ -28,13 +29,14 @@ import {
     toGlobalId
 } from 'graphql-relay';
 import {
+    ResponseError,
     USER_DATA_EMPTY,
     USER_EMAIL_EMPTY,
     USER_FIRST_NAME_EMPTY,
     USER_LAST_NAME_EMPTY,
     USER_PASSWORD_EMPTY,
 } from '../ResponseError';
-import { selectedFields, toOutputFields } from '../helpers';
+import { selectedFields } from '../helpers';
 import { userType } from '../entities';
 import { FieldValidationDefinitions } from 'graphql-validity/lib';
 import { validateOwner, verifyRequestForOwner } from '../validators';
@@ -44,6 +46,13 @@ FieldValidationDefinitions['Mutation:updateUser'] = [validateOwner];
 
 const inputFields: any = toInputFields(userType);
 delete inputFields.cars;
+delete inputFields.id;
+
+inputFields.id = {
+    type: GraphQLID,
+    description: 'User identifier. If provided will perform update, if ' +
+        'not provided - will attempt to create new user'
+};
 
 inputFields.cars = {
     type: new GraphQLList(new GraphQLInputObjectType({
@@ -63,8 +72,12 @@ inputFields.cars = {
     description: 'List of cars associated with the user',
 };
 
-const outputFields: any = toOutputFields(userType);
-delete outputFields.password;
+const outputFields: any = {
+    user: {
+        type: userType,
+        description: 'Created or updated user data object'
+    },
+};
 
 /**
  * GraphQL Mutation: updateUser - modifies user data
@@ -108,11 +121,22 @@ export const updateUser = mutationWithClientMutationId({
             }
         }
 
-        const result = await context.user.update(
-            args, selectedFields(info, { id: '_id' }));
-        result.id = toGlobalId('User', result._id);
-        delete result._id;
+        try {
+            const user = await context.user.update(
+                args, selectedFields(info, { id: '_id' }, 'user')
+            );
 
-        return result;
+            user.id = toGlobalId('User', user._id);
+            delete user._id;
+
+            return { user };
+        } catch (err) {
+            throw new ResponseError(
+                err.message,
+                /duplicate/i.test(err.message)
+                    ? 'USER_EMAIL_ERROR'
+                    : 'UPDATE_USER_ERROR'
+            );
+        }
     }
 });

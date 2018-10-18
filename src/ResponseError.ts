@@ -29,31 +29,35 @@ export class ResponseError extends Error {
     }
 }
 
-export const ERROR_UNAUTHORIZED = new ResponseError('Unauthorized', 401);
+export const ERROR_UNAUTHORIZED = new ResponseError(
+    'Unauthorized',
+    'AUTH_ERROR'
+);
 export const INVALID_CREDENTIALS = new ResponseError(
     'Given credentials are invalid!',
-    'INVALID_CREDENTIALS'
+    'USER_CREDENTIALS_ERROR'
 );
 export const ERROR_USER_FETCH_CRITERIA_INVALID = new ResponseError(
-    'Either user identifier or email required', 400
+    'Either user identifier or email required',
+    'USER_CREDENTIALS_ERROR'
 );
 export const USER_DATA_EMPTY = new ResponseError(
     'No data provided to update user',
-    'USER_DATA_EMPTY'
+    'USER_DATA_ERROR'
 );
 export const USER_EMAIL_EMPTY = new ResponseError(
     'Email is missing',
-    'USER_EMAIL_EMPTY'
+    'USER_EMAIL_ERROR'
 );
 export const USER_PASSWORD_EMPTY = new ResponseError(
     'Password is missing',
-    'USER_PASSWORD_EMPTY'
+    'USER_PASSWORD_ERROR'
 );
 export const USER_FIRST_NAME_EMPTY = new ResponseError(
     'User\'s first (given) name is missing',
-    'USER_FIRST_NAME_EMPTY'
+    'USER_FIRST_NAME_ERROR'
 );
 export const USER_LAST_NAME_EMPTY = new ResponseError(
     'User\'s last (family) name is missing',
-    'USER_LAST_NAME_EMPTY'
+    'USER_LAST_NAME_ERROR'
 );
