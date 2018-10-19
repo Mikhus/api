@@ -48,7 +48,10 @@ export const user = {
 export const users = {
     description: 'Fetches list of users applying given filters and ' +
         'selecting given number of records before or after a specified ' +
-        'record in the selection list',
+        'record in the selection list. If the data is requested not by ' +
+        'admin user the max number of records to fetch is limited to ' +
+        '100 (as first or last arguments define). Without a first or last ' +
+        'args defined it will return first 10 users matching given filters',
     type: userConnection,
     args: {
         filter: {
