@@ -78,10 +78,16 @@ export class Resolvers {
         context: any,
         info: GraphQLResolveInfo,
     ): Promise<Connection<Partial<u.UserObject>>> {
+        const authUser = (info.rootValue as any).authUser;
         const { first, last, before, after, filter } = args;
-        const limit = first || last || 10;
         const cursor = before || after;
         const skip: number = cursor ? Number(fromGlobalId(cursor).id) + 1 : 0;
+        let limit: number = Number(first || last) || 10;
+
+        if (!(authUser && authUser.isAdmin) && limit > 100) {
+            limit = 100;
+        }
+
         const count = await context.user.count(filter || null);
         const users = await context.user.find(
             filter || null,
