@@ -16,7 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import {
-    FieldNode,
+    FieldNode, FragmentDefinitionNode,
     GraphQLInputObjectType,
     GraphQLList,
     GraphQLObjectType,
@@ -53,24 +53,22 @@ function selectPath(selection: SelectionNode[], path: string) {
 }
 
 /**
- * Extracts list of selected fields from a given GraphQL resolver info
- * argument and returns them as an array of strings, using the given
- * field names transformations.
+ * Performs selection recursive parsing, taking into account possible
+ * fragments within the query
  *
+ * @param {SelectionNode[]} selection
  * @param {GraphQLResolveInfo} info - GraphQL resolver info object
  * @param {{ [name: string]: string }} transform - object describing field names mapping
  * @param {string} path - path to nested selection if required
  * @return {string[]} - array of field names
  */
-export function selectedFields(
+function parseSelection(
+    selection: SelectionNode[],
     info: GraphQLResolveInfo,
     transform: { [name: string]: string | undefined } = {},
-    path?: string
+    path?: string,
 ): string[] {
-    const { fieldName, fieldNodes, returnType } = info;
-    let selection = (fieldNodes.find(
-        (node: any) => node.name.value === fieldName
-    ) as any || { selectionSet: {} }).selectionSet.selections;
+    const { returnType, fragments } = info;
 
     if (!selection) {
         // request is broken, handle it carefully
@@ -99,9 +97,56 @@ export function selectedFields(
         selection = selectPath(selection, path);
     }
 
-    const fields: string[] = selection
+    let fields: string[] = selection
         .map((o: any) => transform[o.name.value] || o.name.value || '')
-        .filter((field: string) => !!field);
+        .filter((field: string) => !!field)
+    ;
+
+    if (fragments) {
+        fields = fields.reduce((res: string[], field: string) => {
+            const fragment: FragmentDefinitionNode = fragments[field];
+
+            if (fragment) {
+                // selected field is the fragment!
+                res = res.concat(parseSelection(
+                    fragment.selectionSet.selections as SelectionNode[],
+                    info,
+                    transform,
+                    path
+                ));
+            }
+
+            else {
+                // not a fragment!
+                res.push(field);
+            }
+
+            return res;
+        }, []);
+    }
 
     return fields;
+}
+
+/**
+ * Extracts list of selected fields from a given GraphQL resolver info
+ * argument and returns them as an array of strings, using the given
+ * field names transformations.
+ *
+ * @param {GraphQLResolveInfo} info - GraphQL resolver info object
+ * @param {{ [name: string]: string }} transform - object describing field names mapping
+ * @param {string} path - path to nested selection if required
+ * @return {string[]} - array of field names
+ */
+export function selectedFields(
+    info: GraphQLResolveInfo,
+    transform: { [name: string]: string | undefined } = {},
+    path?: string,
+): string[] {
+    const { fieldName, fieldNodes } = info;
+    let selection: SelectionNode[] = (fieldNodes.find(
+        (node: any) => node.name.value === fieldName
+    ) as any || { selectionSet: {} }).selectionSet.selections;
+
+    return parseSelection(selection, info, transform, path);
 }
