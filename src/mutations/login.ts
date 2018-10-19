@@ -74,12 +74,10 @@ export const login = mutationWithClientMutationId({
             throw USER_PASSWORD_EMPTY;
         }
 
+        const fields = selectedFields(info, { id: '_id' }, 'user');
         const [ token, user ]: any = await Promise.all([
             context.auth.login(args.email, args.password),
-            context.user.fetch(
-                args.email,
-                selectedFields(info, { id: '_id' }, 'user')
-            )
+            context.user.fetch(args.email, fields),
         ]).catch((err: Error) => {
             if (RX_BLOCKED.test(err.message)) {
                 throw USER_ACCOUNT_BLOCKED;

@@ -41,9 +41,11 @@ function selectPath(selection: SelectionNode[], path: string) {
                 (node: FieldNode) => node.name.value === nodes[i]
             );
 
-            if (child) {
-                selection = child.selectionSet.selections;
+            if (!child) {
+                return [];
             }
+
+            selection = child.selectionSet.selections;
         }
     }
 
