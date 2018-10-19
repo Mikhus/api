@@ -71,6 +71,21 @@ interface Node {
   id: ID!
 }
 
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
 type Query {
   """Fetches an object given its ID"""
   node(
@@ -79,7 +94,7 @@ type Query {
   ): Node
 
   """Fetches list of users"""
-  users: [User]
+  users(after: String, first: Int, before: String, last: Int): UserConnection
 
   """Fetches user data by user id or email"""
   user(
@@ -177,4 +192,22 @@ input UserCar {
 
   """Car registration number"""
   regNumber: String!
+}
+
+"""A connection to a list of items."""
+type UserConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [UserEdge]
+}
+
+"""An edge in a connection."""
+type UserEdge {
+  """The item at the end of the edge"""
+  node: User
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }

@@ -16,7 +16,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import { GraphQLResolveInfo } from 'graphql';
-import { fromGlobalId } from 'graphql-relay';
+import {
+    Connection,
+    connectionFromArray,
+    fromGlobalId,
+} from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
 import { user as u, car as c } from '../clients';
 import { selectedFields } from './selection';
@@ -73,11 +77,11 @@ export class Resolvers {
         args: { [name: string]: any },
         context: any,
         info: GraphQLResolveInfo,
-    ): Promise<Partial<u.UserObject>[]> {
+    ): Promise<Connection<Partial<u.UserObject>>> {
         const users = await context.user.find(
-            null, selectedFields(info, { id: '_id' }));
+            null, selectedFields(info, { id: '_id' }, 'edges.node'));
 
-        return users as Partial<u.UserObject>[];
+        return connectionFromArray<Partial<u.UserObject>>(users, args);
     }
 
     /**
@@ -107,7 +111,6 @@ export class Resolvers {
         }
 
         const criteria = args.id ? fromGlobalId(args.id).id : args.email;
-
         const user =  await context.user.fetch(
             criteria,
             selectedFields(info, { id: '_id' })
