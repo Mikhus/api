@@ -18,7 +18,7 @@
 import { GraphQLResolveInfo } from 'graphql';
 import {
     Connection,
-    connectionFromArray,
+    connectionFromArraySlice,
     fromGlobalId,
 } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
@@ -78,10 +78,22 @@ export class Resolvers {
         context: any,
         info: GraphQLResolveInfo,
     ): Promise<Connection<Partial<u.UserObject>>> {
+        const { first, last, before, after, filter } = args;
+        const limit = first || last || 10;
+        const cursor = before || after;
+        const skip: number = cursor ? Number(fromGlobalId(cursor).id) + 1 : 0;
+        const count = await context.user.count(filter || null);
         const users = await context.user.find(
-            null, selectedFields(info, { id: '_id' }, 'edges.node'));
+            filter || null,
+            selectedFields(info, { id: '_id' }, 'edges.node'),
+            skip,
+            limit,
+        );
 
-        return connectionFromArray<Partial<u.UserObject>>(users, args);
+        return connectionFromArraySlice<Partial<u.UserObject>>(users, args, {
+            sliceStart: skip,
+            arrayLength: count
+        });
     }
 
     /**

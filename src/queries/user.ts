@@ -18,8 +18,8 @@
 import { GraphQLString } from 'graphql';
 import { connectionArgs } from 'graphql-relay';
 import { userType, userConnection } from '../entities';
+import { userFilterType } from '../filters';
 import { Resolvers } from '../helpers';
-
 
 /**
  * GraphQL Queries: user - query for a user data by id or email
@@ -31,12 +31,12 @@ export const user = {
         id: {
             type: GraphQLString,
             description: 'User identifier. Optional. ' +
-                'Either this identifier or email required' ,
+                'Either this identifier argument or email required' ,
         },
         email: {
             type: GraphQLString,
             description: 'User email address. Optional. ' +
-                'Either this email or identifier required',
+                'Either this email argument or identifier required',
         },
     },
     resolve: Resolvers.fetchUserByIdOrEmail,
@@ -46,8 +46,17 @@ export const user = {
  * GraphQL Queries: users - query for list of users
  */
 export const users = {
-    description: 'Fetches list of users',
+    description: 'Fetches list of users applying given filters and ' +
+        'selecting given number of records before or after a specified ' +
+        'record in the selection list',
     type: userConnection,
+    args: {
+        filter: {
+            type: userFilterType,
+            description: 'Optional argument, allowing to define filtering ' +
+                'criteria for user list selection',
+        },
+        ...connectionArgs,
+    },
     resolve: Resolvers.fetchUsers,
-    args: connectionArgs,
 };

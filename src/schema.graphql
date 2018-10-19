@@ -93,16 +93,30 @@ type Query {
     id: ID!
   ): Node
 
-  """Fetches list of users"""
-  users(after: String, first: Int, before: String, last: Int): UserConnection
+  """
+  Fetches list of users applying given filters and selecting given number of
+  records before or after a specified record in the selection list
+  """
+  users(
+    """
+    Optional argument, allowing to define filtering criteria for user list selection
+    """
+    filter: UserFilter
+    after: String
+    first: Int
+    before: String
+    last: Int
+  ): UserConnection
 
   """Fetches user data by user id or email"""
   user(
-    """User identifier. Optional. Either this identifier or email required"""
+    """
+    User identifier. Optional. Either this identifier argument or email required
+    """
     id: String
 
     """
-    User email address. Optional. Either this email or identifier required
+    User email address. Optional. Either this email argument or identifier required
     """
     email: String
   ): User
@@ -210,4 +224,24 @@ type UserEdge {
 
   """A cursor for use in pagination"""
   cursor: String!
+}
+
+"""
+This type describes an arguments bypassed to a users collection selection filters
+"""
+input UserFilter {
+  """Filters users list by isActive boolean flag"""
+  isActive: Boolean
+
+  """Filters users list by isAdmin boolean flag"""
+  isAdmin: Boolean
+
+  """Filters users whom firstName matches given string pattern"""
+  firstName: String
+
+  """Filters users whom lastName matches given string pattern"""
+  lastName: String
+
+  """Filters users whom email address matches given string pattern"""
+  email: String
 }
