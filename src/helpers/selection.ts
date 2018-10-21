@@ -16,7 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import {
-    FieldNode, FragmentDefinitionNode,
+    FieldNode,
+    FragmentDefinitionNode,
     GraphQLInputObjectType,
     GraphQLList,
     GraphQLObjectType,
