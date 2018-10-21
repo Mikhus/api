@@ -23,7 +23,7 @@ import {
 } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
 import { user as u, car as c } from '../clients';
-import { selectedFields } from './selection';
+import { fieldsList } from './selection';
 import { clientOptions } from '../../config';
 import { INVALID_CREDENTIALS } from '..';
 
@@ -56,7 +56,7 @@ export class Resolvers {
 
         if (type === 'User') {
             node =  await context.user.fetch(
-                id, selectedFields(info, { id: '_id' }));
+                id, fieldsList(info, { transform: { id: '_id' } }));
         }
 
         return node;
@@ -91,7 +91,7 @@ export class Resolvers {
         const count = await context.user.count(filter || null);
         const users = await context.user.find(
             filter || null,
-            selectedFields(info, { id: '_id' }, 'edges.node'),
+            fieldsList(info, { transform: { id: '_id' }, path: 'edges.node' }),
             skip,
             limit,
         );
@@ -131,7 +131,7 @@ export class Resolvers {
         const criteria = args.id ? fromGlobalId(args.id).id : args.email;
         const user =  await context.user.fetch(
             criteria,
-            selectedFields(info, { id: '_id' })
+            fieldsList(info, { transform: { id: '_id' } })
         );
 
         return user as Partial<u.UserObject>;
@@ -155,7 +155,7 @@ export class Resolvers {
     ): Promise<Partial<c.CarObject>> {
         return context.car.fetch(
             fromGlobalId(args.id).id,
-            selectedFields(info)
+            fieldsList(info)
         );
     }
 
@@ -175,7 +175,7 @@ export class Resolvers {
         context: any,
         info: GraphQLResolveInfo,
     ): Promise<Partial<c.CarObject>[]> {
-        return context.car.list(args.brand, selectedFields(info));
+        return context.car.list(args.brand, fieldsList(info));
     }
 
     /**
@@ -213,7 +213,7 @@ export class Resolvers {
         info: GraphQLResolveInfo
     ) {
         return (user.cars || []).map(async (car: u.UserCarObject) => {
-            const fields = selectedFields(info);
+            const fields = fieldsList(info);
             const obj: c.CarObject = await context.car.fetch(
                 car.carId, fields);
 

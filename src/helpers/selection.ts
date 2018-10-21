@@ -1,7 +1,7 @@
 /*!
  * ISC License
  *
- * Copyright (c) 2018, Imqueue Sandbox
+ * Copyright (c) 2018-present, Mykhailo Stadnyk <mikhus@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,6 +21,7 @@ import {
     GraphQLInputObjectType,
     GraphQLList,
     GraphQLObjectType,
+    GraphQLOutputType,
     GraphQLResolveInfo,
     SelectionNode,
 } from 'graphql';
@@ -32,6 +33,7 @@ import {
  *
  * @param { SelectionNode[]} selection
  * @param {string} path
+ * @access private
  */
 function selectPath(selection: SelectionNode[], path: string) {
     const nodes = path.split('.');
@@ -59,18 +61,17 @@ function selectPath(selection: SelectionNode[], path: string) {
  *
  * @param {SelectionNode[]} selection
  * @param {GraphQLResolveInfo} info - GraphQL resolver info object
- * @param {{ [name: string]: string }} transform - object describing field names mapping
- * @param {string} path - path to nested selection if required
+ * @param {FieldNamesMap} [transform] - object describing field names mapping
+ * @param {string} [path] - path to nested selection if required
  * @return {string[]} - array of field names
+ * @access private
  */
 function parseSelection(
     selection: SelectionNode[],
-    info: GraphQLResolveInfo,
+    { returnType, fragments }: Partial<InfoTypes>,
     transform: { [name: string]: string | undefined } = {},
     path?: string,
 ): string[] {
-    const { returnType, fragments } = info;
-
     if (!selection) {
         // request is broken, handle it carefully
         // usually this piece of code should never be executed
@@ -80,11 +81,14 @@ function parseSelection(
 
         if (returnType instanceof GraphQLList) {
             type = (returnType as any).ofType;
-        } else if (
-            returnType instanceof GraphQLObjectType ||
-            returnType instanceof GraphQLInputObjectType
-        ) {
-            type = returnType;
+        }
+
+        else { // noinspection SuspiciousInstanceOfGuard
+            if (returnType instanceof GraphQLObjectType ||
+                returnType instanceof GraphQLInputObjectType
+            ) {
+                type = returnType;
+            }
         }
 
         if (!(type && type.getFields)) {
@@ -99,9 +103,7 @@ function parseSelection(
     }
 
     let fields: string[] = selection
-        .map((o: any) => transform[o.name.value] || o.name.value || '')
-        .filter((field: string) => !!field)
-    ;
+        .map((o: any) => transform[o.name.value] || o.name.value);
 
     if (fragments) {
         fields = fields.reduce((res: string[], field: string) => {
@@ -109,12 +111,13 @@ function parseSelection(
 
             if (fragment) {
                 // selected field is the fragment!
-                res = res.concat(parseSelection(
-                    fragment.selectionSet.selections as SelectionNode[],
-                    info,
-                    transform,
-                    path
-                ));
+                res = [
+                    ...res,
+                    ...parseSelection(
+                        fragment.selectionSet.selections as SelectionNode[],
+                        { returnType, fragments }, transform, path
+                    )
+                ];
             }
 
             else {
@@ -130,24 +133,96 @@ function parseSelection(
 }
 
 /**
+ * Focus group of properties required for internal use to extract
+ * fields data from GraphQLResolveInfo object
+ *
+ * @access private
+ */
+interface InfoTypes {
+    fieldName: string,
+    fieldNodes: ReadonlyArray<FieldNode>,
+    returnType: GraphQLOutputType,
+    fragments: {
+        [name: string]: FragmentDefinitionNode,
+    },
+}
+
+/**
+ * Field names transformation map interface
+ *
+ * @access public
+ */
+export interface FieldNamesMap {
+    [name: string]: string;
+}
+
+/**
+ * fieldsList options argument interface
+ *
+ * @access public
+ */
+export interface FieldsListOptions {
+    path?: string;
+    transform?: FieldNamesMap;
+}
+
+// noinspection JSUnusedGlobalSymbols
+/**
  * Extracts list of selected fields from a given GraphQL resolver info
  * argument and returns them as an array of strings, using the given
- * field names transformations.
+ * extraction options.
+ *
+ * <example>
+ * const fieldsList = require('graphql-fields-list');
+ *
+ * // assuming there will be resolver definition in the code:
+ * {
+ *     // ...
+ *     resolve(info, args, context) {
+ *         const fields = fieldsList(info);
+ *         // or
+ *         const fields = fieldsList(info, { path: 'edges.node' })
+ *         // or
+ *         const fields = fieldList(info, { transform: { id: '_id' } });
+ *         // or
+ *         const fields = fieldsList(info, {
+ *             // this will select all fields for an object nested
+ *             // under specified path in th request fields object tree
+ *             path: 'edges.node',
+ *             // this will transform field names from request to
+ *             // a desired values. For example in graphql you may want to
+ *             // have field named 'id', but would like to retrieve a value
+ *             // from mongodb associated with this field, which is stored
+ *             // under database field named '_id'
+ *             transform: { id: '_id' }
+ *         });
+ *
+ *         // now we can bypass list of fields to some
+ *         // service or database query, etc. whatever we need
+ *     }
+ * }
+ *
+ * //
+ * </example>
  *
  * @param {GraphQLResolveInfo} info - GraphQL resolver info object
- * @param {{ [name: string]: string }} transform - object describing field names mapping
- * @param {string} path - path to nested selection if required
+ * @param {FieldsListOptions} [options] - fields list extraction options
  * @return {string[]} - array of field names
+ * @access public
  */
-export function selectedFields(
+export function fieldsList(
     info: GraphQLResolveInfo,
-    transform: { [name: string]: string | undefined } = {},
-    path?: string,
+    options: FieldsListOptions = {},
 ): string[] {
-    const { fieldName, fieldNodes } = info;
+    const { fieldName, fieldNodes, returnType, fragments }: InfoTypes = info;
     let selection: SelectionNode[] = (fieldNodes.find(
         (node: any) => node.name.value === fieldName
     ) as any || { selectionSet: {} }).selectionSet.selections;
 
-    return parseSelection(selection, info, transform, path);
+    return parseSelection(
+        selection,
+        { returnType, fragments },
+        options.transform,
+        options.path
+    );
 }

@@ -36,7 +36,7 @@ import {
     USER_LAST_NAME_EMPTY,
     USER_PASSWORD_EMPTY,
 } from '../ResponseError';
-import { selectedFields } from '../helpers';
+import { fieldsList } from '../helpers';
 import { userType } from '../entities';
 import { FieldValidationDefinitions } from 'graphql-validity/lib';
 import { validateOwner, verifyRequestForOwner } from '../validators';
@@ -123,7 +123,11 @@ export const updateUser = mutationWithClientMutationId({
 
         try {
             const user = await context.user.update(
-                args, selectedFields(info, { id: '_id' }, 'user')
+                args,
+                fieldsList(info, {
+                    transform: { id: '_id' },
+                    path: 'user'
+                }),
             );
 
             user._id = toGlobalId('User', user._id);
