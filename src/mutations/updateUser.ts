@@ -28,6 +28,8 @@ import {
     mutationWithClientMutationId,
     toGlobalId
 } from 'graphql-relay';
+import { fieldsList } from 'graphql-fields-list';
+import { FieldValidationDefinitions } from 'graphql-validity/lib';
 import {
     ResponseError,
     USER_DATA_EMPTY,
@@ -36,9 +38,7 @@ import {
     USER_LAST_NAME_EMPTY,
     USER_PASSWORD_EMPTY,
 } from '../ResponseError';
-import { fieldsList } from '../helpers';
 import { userType } from '../entities';
-import { FieldValidationDefinitions } from 'graphql-validity/lib';
 import { validateOwner, verifyRequestForOwner } from '../validators';
 import { toInputFields } from '../helpers';
 

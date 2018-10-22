@@ -22,8 +22,8 @@ import {
     fromGlobalId,
 } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
+import { fieldsList } from 'graphql-fields-list';
 import { user as u, car as c } from '../clients';
-import { fieldsList } from './selection';
 import { clientOptions } from '../../config';
 import { INVALID_CREDENTIALS } from '..';
 

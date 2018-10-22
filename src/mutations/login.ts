@@ -18,8 +18,8 @@
  */
 import { GraphQLString, GraphQLNonNull, GraphQLResolveInfo } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
+import { fieldsList } from 'graphql-fields-list';
 import { userType } from '../entities';
-import { fieldsList } from '../helpers';
 import {
     INVALID_CREDENTIALS,
     USER_EMAIL_EMPTY,

@@ -18,5 +18,4 @@
  */
 export * from './request';
 export * from './resolvers';
-export * from './selection';
 export * from './converters';
