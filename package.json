@@ -54,7 +54,7 @@
     "express": "^4.16.3",
     "express-graphql": "^0.6.12",
     "graphql": "^14.0.2",
-    "graphql-fields-list": "^1.0.0",
+    "graphql-fields-list": "^1.1.0",
     "graphql-relay": "^0.5.5",
     "graphql-validity": "^0.10.9",
     "helmet": "^3.14.0"
