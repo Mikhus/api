@@ -23,9 +23,9 @@ import {
 } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
 import { fieldsList } from 'graphql-fields-list';
-import { user as u, car as c } from '../clients';
+import { user as u, car as c, car } from '../clients';
 import { clientOptions } from '../../config';
-import { INVALID_CREDENTIALS } from '..';
+import CarObject = car.CarObject;
 
 /**
  * Implementation of specific resolvers for  GraphQL schema
@@ -109,7 +109,7 @@ export class Resolvers {
      * @param {{ id?: string, email?: string }} args
      * @param {any} context
      * @param {GraphQLResolveInfo} info
-     * @return {Promise<Partial<UserObject>>}
+     * @return {Promise<Partial<UserObject> | null>}
      */
     @profile()
     public static async fetchUserByIdOrEmail(
@@ -117,24 +117,29 @@ export class Resolvers {
         args: { id?: string, email?: string },
         context: any,
         info: GraphQLResolveInfo,
-    ): Promise<Partial<u.UserObject>> {
-        const authUser = (info.rootValue as any).authUser;
-
+    ): Promise<Partial<u.UserObject> | null> {
         if (!(args.id || args.email)) {
-            if (authUser) {
-                args.email = authUser.email;
-            } else {
-                throw INVALID_CREDENTIALS;
+            const authUser = (info.rootValue as any).authUser;
+
+            if (!authUser) {
+                return null;
             }
+
+            args.email = authUser.email;
         }
 
         const criteria = args.id ? fromGlobalId(args.id).id : args.email;
-        const user =  await context.user.fetch(
-            criteria,
-            fieldsList(info, { transform: { id: '_id' } })
-        );
+        try {
+            const user = await context.user.fetch(
+                criteria,
+                fieldsList(info, { transform: { id: '_id' } })
+            );
 
-        return user as Partial<u.UserObject>;
+            return user as Partial<u.UserObject>;
+        } catch (err) {
+            Resolvers.logger.error(err);
+            return null;
+        }
     }
 
     /**
@@ -144,7 +149,7 @@ export class Resolvers {
      * @param {{ id: string }} args
      * @param {any} context
      * @param {GraphQLResolveInfo} info
-     * @return {Promise<Partial<c.CarObject>>}
+     * @return {Promise<Partial<c.CarObject> | null>}
      */
     @profile()
     public static async fetchCarById(
@@ -152,11 +157,16 @@ export class Resolvers {
         args: { id: string },
         context: any,
         info: GraphQLResolveInfo,
-    ): Promise<Partial<c.CarObject>> {
-        return context.car.fetch(
-            fromGlobalId(args.id).id,
-            fieldsList(info)
-        );
+    ): Promise<Partial<c.CarObject> | null> {
+        try {
+            return context.car.fetch(
+                fromGlobalId(args.id).id,
+                fieldsList(info)
+            );
+        } catch(err) {
+            Resolvers.logger.error(err);
+            return null;
+        }
     }
 
     /**
@@ -166,7 +176,7 @@ export class Resolvers {
      * @param {{ brand: string }} args
      * @param {any} context
      * @param {GraphQLResolveInfo} info
-     * @return {Promise<Partial<c.CarObject>[]>}
+     * @return {Promise<Partial<c.CarObject>[]>>}
      */
     @profile()
     public static async fetchCars(
@@ -175,7 +185,12 @@ export class Resolvers {
         context: any,
         info: GraphQLResolveInfo,
     ): Promise<Partial<c.CarObject>[]> {
-        return context.car.list(args.brand, fieldsList(info));
+        try {
+            return context.car.list(args.brand, fieldsList(info));
+        } catch (err) {
+            Resolvers.logger.error(err);
+            return [];
+        }
     }
 
     /**
@@ -194,7 +209,12 @@ export class Resolvers {
         context: any,
         info: GraphQLResolveInfo,
     ): Promise<string[]> {
-        return context.car.brands();
+        try {
+            return context.car.brands();
+        } catch (err) {
+            Resolvers.logger.error(err);
+            return [];
+        }
     }
 
     /**
@@ -203,6 +223,7 @@ export class Resolvers {
      * @param {u.UserObject} user
      * @param {any} args
      * @param {any} context
+     * @return {Promise<Array<Partial<c.CarObject> | null>>}
      * @param {GraphQLResolveInfo} info
      */
     @profile()
@@ -211,25 +232,47 @@ export class Resolvers {
         args: any,
         context: any,
         info: GraphQLResolveInfo
-    ) {
-        return (user.cars || []).map(async (car: u.UserCarObject) => {
+    ): Promise<Array<Partial<c.CarObject> | null>> {
+        try {
+            const userCarsMap = (user.cars || [])
+                .reduce((res, next: u.UserCarObject) => {
+                    res[next.carId] = next;
+                    return res;
+                }, {} as { [id: string]: u.UserCarObject });
+            const ids = Object.keys(userCarsMap);
+
+            if (!(ids && ids.length)) {
+                return [];
+            }
+
             const fields = fieldsList(info);
-            const obj: c.CarObject = await context.car.fetch(
-                car.carId, fields);
+            const cars = (await context.car.fetch(ids, [...fields, 'id']))
+                .map((car: Partial<CarObject> | null) => {
+                    if (!(car && car.id)) {
+                        return null;
+                    }
 
-            if (~fields.indexOf('carId')) {
-                (obj as any).carId = obj.id;
-            }
+                    const userCar = userCarsMap[car.id];
 
-            if (~fields.indexOf('id')) {
-                obj.id = car._id;
-            } else {
-                delete obj.id;
-            }
+                    if (~fields.indexOf('carId')) {
+                        (car as any).carId = car.id;
+                    }
 
-            (obj as any).regNumber = car.regNumber;
+                    if (~fields.indexOf('id')) {
+                        car.id = userCar._id;
+                    } else {
+                        delete car.id;
+                    }
 
-            return obj;
-        })
+                    (car as any).regNumber = userCar.regNumber;
+
+                    return car;
+                });
+
+            return cars;
+        } catch (err) {
+            Resolvers.logger.error(err);
+            return [];
+        }
     }
 }

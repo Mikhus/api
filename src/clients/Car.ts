@@ -40,17 +40,18 @@ export namespace car {
         }
 
         /**
-         * Returns car object by its identifier
+         * Returns car object by its identifier or if multiple identifiers given
+         * as array of identifiers - returns a list of car objects.
          *
-         * @param {string} id - car identifier
+         * @param {string | string[]} id - car identifier
          * @param {string[]} [selectedFields] - fields to return
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
-         * @return {Promise<Partial<CarObject> | null>}
+         * @return {Promise<Partial<CarObject> | Partial<CarObject|null>[] | null>}
          */
         @profile()
         @remote()
-        public async fetch(id: string, selectedFields?: string[], delay?: IMQDelay): Promise<Partial<CarObject> | null> {
-            return await this.remoteCall<Partial<CarObject> | null>(...arguments);
+        public async fetch(id: string | string[], selectedFields?: string[], delay?: IMQDelay): Promise<Partial<CarObject> | Partial<CarObject|null>[] | null> {
+            return await this.remoteCall<Partial<CarObject> | Partial<CarObject|null>[] | null>(...arguments);
         }
 
         /**

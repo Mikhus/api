@@ -15,7 +15,9 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-import { GraphQLString } from 'graphql';
+import {
+    GraphQLString
+} from 'graphql';
 import { connectionArgs } from 'graphql-relay';
 import { userType, userConnection } from '../entities';
 import { userFilterType } from '../filters';
@@ -24,7 +26,7 @@ import { Resolvers } from '../helpers';
 /**
  * GraphQL Queries: user - query for a user data by id or email
  */
-export const user = {
+export const user: any = {
     description: 'Fetches user data by user id or email',
     type: userType,
     args: {
@@ -45,7 +47,7 @@ export const user = {
 /**
  * GraphQL Queries: users - query for list of users
  */
-export const users = {
+export const users: any = {
     description: 'Fetches list of users applying given filters and ' +
         'selecting given number of records before or after a specified ' +
         'record in the selection list. If the data is requested not by ' +

@@ -45,7 +45,7 @@ const Mutation: GraphQLObjectType = new GraphQLObjectType({
     fields: {
         updateUser,
         login,
-        logout
+        logout,
     },
 });
 

@@ -22,7 +22,7 @@ import { Resolvers } from '../helpers';
 /**
  * GraphQL Queries: user - query for a user data by id or email
  */
-export const car = {
+export const car: any = {
     description: 'Fetches car data by its identifier',
     type: carType,
     args: {
@@ -38,7 +38,7 @@ export const car = {
 /**
  * GraphQL Queries: users - query for list of users
  */
-export const cars = {
+export const cars: any = {
     description: 'Fetches list of cars for a given brand',
     type: new GraphQLList(carType),
     args: {
@@ -53,7 +53,7 @@ export const cars = {
 /**
  * GraphQL Queries: brands - query for listing car brands
  */
-export const brands = {
+export const brands: any = {
     description: 'Fetches list of car brands',
     type: new GraphQLList(GraphQLString),
     resolve: Resolvers.fetchCarBrands,

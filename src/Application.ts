@@ -165,7 +165,7 @@ export class Application {
             else {
                 next();
             }
-        })
+        });
         app.use(requestUser(context));
         app.use(graphQLValidityExpressMiddleware);
     }
