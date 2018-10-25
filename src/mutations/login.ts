@@ -77,28 +77,30 @@ export const login = mutationWithClientMutationId({
             transform: { id: '_id' },
             path: 'user'
         });
-        const [ token, user ]: any = await Promise.all([
-            context.auth.login(args.email, args.password),
-            context.user.fetch(args.email, fields),
-        ]).catch((err: Error) => {
+
+        let token, user;
+
+        try {
+            [token, user] = await Promise.all([
+                context.auth.login(args.email, args.password),
+                context.user.fetch(args.email, fields),
+            ]);
+        } catch(err) {
             if (RX_BLOCKED.test(err.message)) {
                 throw USER_ACCOUNT_BLOCKED;
-            } else if (RX_MISMATCH.test(err.message)) {
-                throw USER_PASSWORD_MISMATCH;
-            } else {
-                throw new ResponseError(
-                    err.message,
-                    'USER_CREDENTIALS_ERROR'
-                );
             }
-        });
+
+            else if (RX_MISMATCH.test(err.message)) {
+                throw USER_PASSWORD_MISMATCH;
+            }
+
+            else {
+                throw new ResponseError(err.message, 'USER_CREDENTIALS_ERROR');
+            }
+        }
 
         if (!(token && user)) {
             throw INVALID_CREDENTIALS;
-        }
-
-        if (!user.isActive) {
-            throw USER_ACCOUNT_BLOCKED;
         }
 
         return { user, token };

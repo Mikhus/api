@@ -44,12 +44,12 @@ export function isOwnMutation(info: GraphQLResolveInfo) {
         const [_, id] = query.match(RX_UPDATE_USER_ID) || [null, null];
         const authUser: any = info.rootValue.authUser;
 
-        if (id && !(authUser && authUser._id === fromGlobalId(id).id)) {
-            return false;
+        if (!id || (authUser && authUser._id === fromGlobalId(id).id)) {
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 /**
@@ -59,8 +59,8 @@ export function isOwnMutation(info: GraphQLResolveInfo) {
  * @throws {RequestError}
  */
 export function validateAdmin(...args: any[]) {
-    if (!isOwnMutation(args[3])) {
-        throw ERROR_UNAUTHORIZED;
+    if (isOwnMutation(args[3])) {
+        return ;
     }
 
     const user: any = args[3].rootValue.authUser;
@@ -77,8 +77,8 @@ export function validateAdmin(...args: any[]) {
  *  @throws {ResponseError}
  */
 export function validateOwner(...args: any[]) {
-    if (!isOwnMutation(args[3])) {
-        throw ERROR_UNAUTHORIZED;
+    if (isOwnMutation(args[3])) {
+        return ;
     }
 
     const authUser: any = args[3].rootValue.authUser;
