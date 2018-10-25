@@ -37,19 +37,17 @@ export function isOwnMutation(info: GraphQLResolveInfo) {
     const query =
         (((info || {} as any).rootValue || {} as any).body as any).query;
 
-    if (!RX_LOGIN_MUTATION.test(query)) {
-        return false;
+    if (RX_LOGIN_MUTATION.test(query)) {
+        return true;
     }
 
-    if (!RX_UPDATE_MUTATION) {
-        return false;
-    }
+    if (RX_UPDATE_MUTATION) {
+        const [_, id] = query.match(RX_UPDATE_USER_ID) || [null, null];
+        const authUser: any = info.rootValue.authUser;
 
-    const [_, id] = query.match(RX_UPDATE_USER_ID);
-    const authUser: any = info.rootValue.authUser;
-
-    if (!(authUser && authUser.id === fromGlobalId(id).id)) {
-        return false;
+        if (id && !(authUser && authUser.id === fromGlobalId(id).id)) {
+            return false;
+        }
     }
 
     return true;

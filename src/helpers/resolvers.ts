@@ -22,7 +22,7 @@ import {
     fromGlobalId,
 } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
-import { fieldsList } from 'graphql-fields-list';
+import { fieldsList, fieldsMap } from 'graphql-fields-list';
 import { user as u, car as c, car } from '../clients';
 import { clientOptions } from '../../config';
 import CarObject = car.CarObject;
