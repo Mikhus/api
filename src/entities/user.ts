@@ -24,6 +24,7 @@ import {
     GraphQLObjectType,
     GraphQLString,
     GraphQLList,
+    GraphQLInt,
 } from 'graphql';
 import { user as u } from '../clients';
 import { carType } from './car';
@@ -76,7 +77,12 @@ export const userType = new GraphQLObjectType({
         cars: {
             type: new GraphQLList(carType),
             description: 'User cars list',
-            resolve: Resolvers.carsCollection
+            resolve: Resolvers.carsCollection,
+        },
+        carsCount: {
+            type: GraphQLInt,
+            description: 'User registered cars count',
+            resolve: Resolvers.carsCount,
         },
     },
 });

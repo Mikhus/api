@@ -35,6 +35,14 @@ export namespace user {
         cars: UserCarObject[];
     }
 
+    export interface UserFilters {
+        email?: string;
+        isActive?: boolean;
+        isAdmin?: boolean;
+        firstName?: string;
+        lastName?: string;
+    }
+
     export class UserClient extends IMQClient {
 
         /**
@@ -49,6 +57,19 @@ export namespace user {
         @remote()
         public async update(data: UserObject, fields?: string[], delay?: IMQDelay): Promise<UserObject> {
             return await this.remoteCall<UserObject>(...arguments);
+        }
+
+        /**
+         * Returns number of cars registered for the user having given id or email
+         *
+         * @param {string} idOrEmail
+         * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
+         * @return {Promise<number>}
+         */
+        @profile()
+        @remote()
+        public async carsCount(idOrEmail: string, delay?: IMQDelay): Promise<number> {
+            return await this.remoteCall<number>(...arguments);
         }
 
         /**
@@ -69,13 +90,13 @@ export namespace user {
         /**
          * Returns number of users stored in the system and matching given criteria
          *
-         * @param {boolean} [isActive] - filter by is active criteria
+         * @param {UserFilters} [filters] - filter by is active criteria
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
          * @return {Promise<number>}
          */
         @profile()
         @remote()
-        public async count(isActive?: boolean, delay?: IMQDelay): Promise<number> {
+        public async count(filters?: UserFilters, delay?: IMQDelay): Promise<number> {
             return await this.remoteCall<number>(...arguments);
         }
 
@@ -84,7 +105,7 @@ export namespace user {
          * can be fetched skipping given number of records and having max length
          * of a given limit argument
          *
-         * @param {boolean} [isActive] - is active criteria to filter user list
+         * @param {UserFilters} [filters] - is active criteria to filter user list
          * @param {string[]} [fields] - list of fields to be selected and returned for each found user object
          * @param {number} [skip] - record to start fetching from
          * @param {number} [limit] - selected collection max length from a starting position
@@ -93,7 +114,7 @@ export namespace user {
          */
         @profile()
         @remote()
-        public async find(isActive?: boolean, fields?: string[], skip?: number, limit?: number, delay?: IMQDelay): Promise<UserObject[]> {
+        public async find(filters?: UserFilters, fields?: string[], skip?: number, limit?: number, delay?: IMQDelay): Promise<UserObject[]> {
             return await this.remoteCall<UserObject[]>(...arguments);
         }
 

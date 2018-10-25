@@ -217,6 +217,17 @@ export class Resolvers {
         }
     }
 
+    @profile()
+    public static async carsCount(
+        user: u.UserObject,
+        args: any,
+        context: any,
+    ): Promise<number> {
+        return user.cars !== undefined
+            ? user.cars.length
+            : await context.user.carsCount(user._id);
+    }
+
     /**
      * Resolves nested cars collection on user entity
      *
