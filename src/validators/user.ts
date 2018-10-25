@@ -37,8 +37,8 @@ export function isOwnMutation(info: GraphQLResolveInfo) {
     const query =
         (((info || {} as any).rootValue || {} as any).body as any).query;
 
-    if (RX_LOGIN_MUTATION.test(query)) {
-        return true;
+    if (!RX_LOGIN_MUTATION.test(query)) {
+        return false;
     }
 
     if (!RX_UPDATE_MUTATION) {
