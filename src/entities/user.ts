@@ -77,7 +77,7 @@ export const userType = new GraphQLObjectType({
             type: new GraphQLList(carType),
             description: 'User cars list',
             resolve: Resolvers.carsCollection
-        }
+        },
     },
 });
 
