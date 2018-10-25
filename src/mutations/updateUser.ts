@@ -122,6 +122,10 @@ export const updateUser = mutationWithClientMutationId({
         }
 
         try {
+            for (let car of args.cars || []) {
+                car.carId = fromGlobalId(car.carId).id;
+            }
+
             const user = await context.user.update(
                 args,
                 fieldsList(info, {

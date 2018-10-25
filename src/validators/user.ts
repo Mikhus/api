@@ -24,6 +24,8 @@ export const RX_LOGIN_MUTATION: RegExp =
     /mutation\s[\s\S]*\{\s*login\s*\(/;
 export const RX_UPDATE_MUTATION: RegExp =
     /mutation\s[\s\S]*\{\s*updateUser\s*\(/;
+export const RX_UPDATE_USER_ID: RegExp =
+    /input:[\s\S]*?\bid[^:]*:[^"]*(".*?)"/
 
 /**
  * Checks if a given request is a login mutation
@@ -35,10 +37,22 @@ export function isOwnMutation(info: GraphQLResolveInfo) {
     const query =
         (((info || {} as any).rootValue || {} as any).body as any).query;
 
-    return [
-        RX_LOGIN_MUTATION,
-        RX_UPDATE_MUTATION
-    ].some(rx => rx.test(query));
+    if (RX_LOGIN_MUTATION.test(query)) {
+        return true;
+    }
+
+    if (!RX_UPDATE_MUTATION) {
+        return false;
+    }
+
+    const [_, id] = query.match(RX_UPDATE_USER_ID);
+    const authUser: any = info.rootValue.authUser;
+
+    if (!(authUser && authUser.id === fromGlobalId(id).id)) {
+        return false;
+    }
+
+    return true;
 }
 
 /**
