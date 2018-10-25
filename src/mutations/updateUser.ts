@@ -39,7 +39,10 @@ import {
     USER_PASSWORD_EMPTY,
 } from '../ResponseError';
 import { userType } from '../entities';
-import { validateOwner, verifyRequestForOwner } from '../validators';
+import {
+    validateOwner,
+    verifyRequestForAdmin,
+} from '../validators';
 import { toInputFields } from '../helpers';
 
 FieldValidationDefinitions['Mutation:updateUser'] = [validateOwner];
@@ -92,8 +95,10 @@ export const updateUser = mutationWithClientMutationId({
         context: any,
         info: GraphQLResolveInfo,
     ) {
-        if (typeof args.isAdmin !== 'undefined') {
-            verifyRequestForOwner(info);
+        if (typeof args.isAdmin === 'boolean' ||
+            typeof args.isActive === 'boolean'
+        ) {
+            verifyRequestForAdmin(info);
         }
 
         if (args.id) {

@@ -45,7 +45,7 @@ export function isOwnMutation(info: GraphQLResolveInfo) {
         const [_, id] = query.match(RX_UPDATE_USER_ID) || [null, null];
         const authUser: any = info.rootValue.authUser;
 
-        if (id && !(authUser && authUser.id === fromGlobalId(id).id)) {
+        if (id && !(authUser && authUser._id === fromGlobalId(id).id)) {
             return false;
         }
     }
@@ -60,8 +60,8 @@ export function isOwnMutation(info: GraphQLResolveInfo) {
  * @throws {RequestError}
  */
 export function validateAdmin(...args: any[]) {
-    if (isOwnMutation(args[3])) {
-        return;
+    if (!isOwnMutation(args[3])) {
+        throw ERROR_UNAUTHORIZED;
     }
 
     const user: any = args[3].rootValue.authUser;
@@ -78,12 +78,13 @@ export function validateAdmin(...args: any[]) {
  *  @throws {ResponseError}
  */
 export function validateOwner(...args: any[]) {
-    if (isOwnMutation(args[3])) {
-        return;
+    if (!isOwnMutation(args[3])) {
+        throw ERROR_UNAUTHORIZED;
     }
 
     const authUser: any = args[3].rootValue.authUser;
     let data: any = args[0].authUser ? args[1] : args[0];
+
     if (data.input) data = data.input;
     const isAdmin = authUser && authUser.isActive && authUser.isAdmin;
     const isOwner = (data && authUser && authUser.isActive && (
@@ -103,6 +104,17 @@ export function validateOwner(...args: any[]) {
     }
 }
 
+// noinspection JSUnusedGlobalSymbols
+/**
+ * Alias for validateAdmin but with a single argument to provide
+ *
+ * @param {GraphQLResolveInfo} requestInfo
+ */
+export function verifyRequestForAdmin(requestInfo: GraphQLResolveInfo) {
+    return validateAdmin(null, null, null, requestInfo);
+}
+
+// noinspection JSUnusedGlobalSymbols
 /**
  * Alias for validateOwner but with a single argument to provide
  *
