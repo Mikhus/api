@@ -15,10 +15,10 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-import './config';
+import { clientOptions as config } from './config';
 import { Application } from './src';
 
 Application.run()
     .then(() => console.log('API application started!'))
-    .catch((err: Error) => console.error(err))
+    .catch((err: Error) => (config.logger || console).error(err))
 ;
