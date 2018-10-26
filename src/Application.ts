@@ -33,7 +33,7 @@ import {
     schema,
     user,
     auth,
-    car
+    car,
 } from '.';
 
 /**
@@ -141,7 +141,7 @@ export class Application {
                 req: express.Request,
                 res: express.Response,
                 buf: Buffer,
-                encoding: string
+                encoding: string,
             ) {
                 if (buf && buf.length) {
                     (req as any).rawBody = buf.toString(encoding || 'utf8');
