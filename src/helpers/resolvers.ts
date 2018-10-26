@@ -280,7 +280,9 @@ export class Resolvers {
 
                     if (~fields.indexOf('id')) {
                         car.id = userCar._id;
-                    } else {
+                    }
+
+                    else {
                         delete car.id;
                     }
 
@@ -292,6 +294,7 @@ export class Resolvers {
             return cars;
         } catch (err) {
             Resolvers.logger.error(err);
+
             return [];
         }
     }
