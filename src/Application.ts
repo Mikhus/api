@@ -202,25 +202,19 @@ export class Application {
 
         Application.port = port;
 
-        if (Application.isSecure) {
-            https.createServer({
+        const server: http.Server | https.Server = Application.isSecure
+            ? https.createServer({
                 key: fs.readFileSync(Application.key),
                 cert: fs.readFileSync(Application.cert)
-            }, app).listen(port, async () => {
-                const logger = clientOptions.logger || console;
+            }, app)
+            : http.createServer(app);
 
-                logger.log(`Listening at https://${Application.host}:${port}`);
-                logger.log(`Environment: ${Application.env}`);
-            });
-        }
+        server.listen(port, async() => {
+            const logger = clientOptions.logger || console;
 
-        else {
-            http.createServer(app).listen(port, async() => {
-                const logger = clientOptions.logger || console;
-
-                logger.log(`Listening at http://${Application.host}:${port}`);
-                logger.log(`Environment: ${Application.env}`);
-            });
-        }
+            logger.log(`Listening at http${Application.isSecure && 's'
+                }://${Application.host}:${port}`);
+            logger.log(`Environment: ${Application.env}`);
+        });
     }
 }

@@ -51,12 +51,12 @@ export namespace user {
          * @param {UserObject} data - user data fields
          * @param {string[]} [fields] - fields to return on success
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
-         * @return {Promise<UserObject>}
+         * @return {Promise<UserObject | null>}
          */
         @profile()
         @remote()
-        public async update(data: UserObject, fields?: string[], delay?: IMQDelay): Promise<UserObject> {
-            return await this.remoteCall<UserObject>(...arguments);
+        public async update(data: UserObject, fields?: string[], delay?: IMQDelay): Promise<UserObject | null> {
+            return await this.remoteCall<UserObject | null>(...arguments);
         }
 
         /**
@@ -116,6 +116,34 @@ export namespace user {
         @remote()
         public async find(filters?: UserFilters, fields?: string[], skip?: number, limit?: number, delay?: IMQDelay): Promise<UserObject[]> {
             return await this.remoteCall<UserObject[]>(...arguments);
+        }
+
+        /**
+         * Attach new car to a user
+         *
+         * @param {string} userId - user identifier to add car to
+         * @param {string} carId - selected car identifier
+         * @param {string} regNumber - car registration number
+         * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
+         * @return {Promise<boolean>}
+         */
+        @profile()
+        @remote()
+        public async addCar(userId: string, carId: string, regNumber: string, delay?: IMQDelay): Promise<boolean> {
+            return await this.remoteCall<boolean>(...arguments);
+        }
+
+        /**
+         * Removes given car from a user
+         *
+         * @param {string} carId - user car identifier
+         * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
+         * @return {Promise<boolean>}
+         */
+        @profile()
+        @remote()
+        public async removeCar(carId: string, delay?: IMQDelay): Promise<boolean> {
+            return await this.remoteCall<boolean>(...arguments);
         }
 
     }
