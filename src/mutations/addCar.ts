@@ -37,7 +37,8 @@ export const addCar = mutationWithClientMutationId({
     inputFields: {
         idOrEmail: {
             type: GraphQLID,
-            description:  'User identifier or email address. Optional.'
+            description:  'User identifier or email address. Optional. ' +
+                'If not passed user must be authenticated.'
         },
         carId: {
             type: new GraphQLNonNull(GraphQLString),

@@ -1,5 +1,7 @@
 input addCarInput {
-  """User identifier or email address. Optional."""
+  """
+  User identifier or email address. Optional. If not passed user must be authenticated.
+  """
   idOrEmail: ID
 
   """Selected car identifier"""
