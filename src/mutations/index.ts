@@ -18,3 +18,5 @@
 export * from './updateUser';
 export * from './login';
 export * from './logout';
+export * from './addCar';
+export * from './removeCar';

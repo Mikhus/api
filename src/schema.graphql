@@ -1,3 +1,21 @@
+input addCarInput {
+  """User identifier or email address. Optional."""
+  idOrEmail: ID
+
+  """Selected car identifier"""
+  carId: String!
+
+  """User's car registration number"""
+  regNumber: String!
+  clientMutationId: String
+}
+
+type addCarPayload {
+  """Updated user data object"""
+  user: User
+  clientMutationId: String
+}
+
 """Car entity"""
 type Car implements Node {
   """The ID of an object"""
@@ -63,6 +81,12 @@ type Mutation {
 
   """Logs user out and invalidates token"""
   logout(input: logoutInput!): logoutPayload
+
+  """Adds a car to a user"""
+  addCar(input: addCarInput!): addCarPayload
+
+  """Removes car from a user"""
+  removeCar(input: removeCarInput!): removeCarPayload
 }
 
 """An object with an ID"""
@@ -131,6 +155,18 @@ type Query {
 
   """Fetches list of car brands"""
   brands: [String]
+}
+
+input removeCarInput {
+  """User's car identifier"""
+  carId: String!
+  clientMutationId: String
+}
+
+type removeCarPayload {
+  """Updated user data object"""
+  user: User
+  clientMutationId: String
 }
 
 input updateUserInput {

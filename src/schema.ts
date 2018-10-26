@@ -18,7 +18,7 @@
 import { GraphQLObjectType, GraphQLSchema } from 'graphql';
 import { wrapResolvers } from 'graphql-validity/lib';
 import { nodeField } from './entities';
-import { updateUser, login, logout } from './mutations';
+import { updateUser, login, logout, addCar, removeCar } from './mutations';
 import { user, users, car, cars, brands } from './queries';
 
 /**
@@ -45,6 +45,8 @@ const Mutation: GraphQLObjectType = new GraphQLObjectType({
         updateUser,
         login,
         logout,
+        addCar,
+        removeCar,
     },
 });
 

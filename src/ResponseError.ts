@@ -64,3 +64,8 @@ export const USER_ACCOUNT_BLOCKED = new ResponseError(
     'This account is blocked',
     'USER_LOGIN_ERROR',
 );
+export const USER_CRITERIA_REQUIRED = new ResponseError(
+    'User should be logged in, otherwise either user identifier or ' +
+    'email address required to fetch requested data',
+    'USER_CRITERIA_REQUIRED',
+);
