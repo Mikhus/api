@@ -30,15 +30,10 @@ export const user: any = {
     description: 'Fetches user data by user id or email',
     type: userType,
     args: {
-        id: {
+        idOrEmail: {
             type: GraphQLString,
-            description: 'User identifier. Optional. ' +
-                'Either this identifier argument or email required' ,
-        },
-        email: {
-            type: GraphQLString,
-            description: 'User email address. Optional. ' +
-                'Either this email argument or identifier required',
+            description: 'User identifier or email to match user object. ' +
+                'Optional.'
         },
     },
     resolve: Resolvers.fetchUserByIdOrEmail,

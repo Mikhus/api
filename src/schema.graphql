@@ -113,15 +113,8 @@ type Query {
 
   """Fetches user data by user id or email"""
   user(
-    """
-    User identifier. Optional. Either this identifier argument or email required
-    """
-    id: String
-
-    """
-    User email address. Optional. Either this email argument or identifier required
-    """
-    email: String
+    """User identifier or email to match user object. Optional."""
+    idOrEmail: String
   ): User
 
   """Fetches list of cars for a given brand"""

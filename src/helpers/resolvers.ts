@@ -114,21 +114,29 @@ export class Resolvers {
     @profile()
     public static async fetchUserByIdOrEmail(
         source: any,
-        args: { id?: string, email?: string },
+        args: { idOrEmail?: string },
         context: any,
         info: GraphQLResolveInfo,
     ): Promise<Partial<u.UserObject> | null> {
-        if (!(args.id || args.email)) {
+        if (!args.idOrEmail) {
             const authUser = (info.rootValue as any).authUser;
 
             if (!authUser) {
                 return null;
             }
 
-            args.email = authUser.email;
+            args.idOrEmail = authUser.email;
         }
 
-        const criteria = args.id ? fromGlobalId(args.id).id : args.email;
+        if (!args.idOrEmail) {
+            return null;
+        }
+
+        const criteria = /@/.test(args.idOrEmail)
+            ? args.idOrEmail
+            : fromGlobalId(args.idOrEmail).id
+        ;
+
         try {
             const user = await context.user.fetch(
                 criteria,
@@ -138,6 +146,7 @@ export class Resolvers {
             return user as Partial<u.UserObject>;
         } catch (err) {
             Resolvers.logger.error(err);
+
             return null;
         }
     }
