@@ -22,10 +22,13 @@ import {
     fromGlobalId,
 } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
-import { fieldsList, fieldsMap } from 'graphql-fields-list';
-import { user as u, car as c, car } from '../clients';
+import { fieldsList } from 'graphql-fields-list';
+import { user as u, car as c } from '../clients';
 import { clientOptions } from '../../config';
-import CarObject = car.CarObject;
+
+interface UserCarsMap {
+    [id: string]: u.UserCarObject;
+}
 
 /**
  * Implementation of specific resolvers for  GraphQL schema
@@ -237,8 +240,15 @@ export class Resolvers {
             : await context.user.carsCount(user._id);
     }
 
+    private static toCarsMap(userCars: u.UserCarObject[]): UserCarsMap {
+        return (userCars || [])
+            .reduce((cars, car: u.UserCarObject) =>
+                (cars[car._id] = car, cars), {} as UserCarsMap);
+    }
+
     /**
      * Resolves nested cars collection on user entity
+     * TODO: refactor this!!!
      *
      * @param {u.UserObject} user
      * @param {any} args
@@ -254,44 +264,45 @@ export class Resolvers {
         info: GraphQLResolveInfo
     ): Promise<Array<Partial<c.CarObject> | null>> {
         try {
-            const userCarsMap = (user.cars || [])
-                .reduce((res, next: u.UserCarObject) => {
-                    res[next.carId] = next;
-                    return res;
-                }, {} as { [id: string]: u.UserCarObject });
+            const userCarsMap = Resolvers.toCarsMap(user.cars);
             const ids = Object.keys(userCarsMap);
+            const carIds = ids.reduce((ids, id) => {
+                if (!~ids.indexOf(userCarsMap[id].carId)) {
+                    ids.push(userCarsMap[id].carId);
+                }
+                return ids;
+            }, [] as string[]);
 
             if (!(ids && ids.length)) {
                 return [];
             }
 
             const fields = fieldsList(info);
-            const cars = (await context.car.fetch(ids, [...fields, 'id']))
-                .map((car: Partial<CarObject> | null) => {
-                    if (!(car && car.id)) {
-                        return null;
-                    }
+            const cars = await context.car.fetch(carIds, [...fields, 'id']);
 
-                    const userCar = userCarsMap[car.id];
+            return ids.map((id: string) => {
+                const userCar = userCarsMap[id];
+                const car = JSON.parse(JSON.stringify(
+                    cars.find((car: c.CarObject) =>
+                        car && car.id === userCar.carId)
+                    )) as any;
 
-                    if (~fields.indexOf('carId')) {
-                        (car as any).carId = car.id;
-                    }
+                if (~fields.indexOf('carId')) {
+                    car.carId = car.id;
+                }
 
-                    if (~fields.indexOf('id')) {
-                        car.id = userCar._id;
-                    }
+                if (~fields.indexOf('id')) {
+                    car.id = userCar._id;
+                }
 
-                    else {
-                        delete car.id;
-                    }
+                else {
+                    delete car.id;
+                }
 
-                    (car as any).regNumber = userCar.regNumber;
+                (car as any).regNumber = userCar.regNumber;
 
-                    return car;
-                });
-
-            return cars;
+                return car;
+            });
         } catch (err) {
             Resolvers.logger.error(err);
 
