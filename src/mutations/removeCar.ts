@@ -49,9 +49,11 @@ export const removeCar = mutationWithClientMutationId({
     ) {
         args.carId = fromGlobalId(args.carId).id;
 
-        return await context.user.removeCar(args.carId, fieldsList(info, {
+        const user = await context.user.removeCar(args.carId, fieldsList(info, {
             transform: { id: '_id' },
             path: 'user'
         }));
+
+        return { user };
     }
 });

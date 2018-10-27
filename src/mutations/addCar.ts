@@ -69,7 +69,7 @@ export const addCar = mutationWithClientMutationId({
             args.idOrEmail = fromGlobalId(args.idOrEmail).id;
         }
 
-        await context.user.addCar(
+        const user = await context.user.addCar(
             args.idOrEmail,
             args.carId,
             args.regNumber,
@@ -78,5 +78,7 @@ export const addCar = mutationWithClientMutationId({
                 path: 'user'
             }),
         );
+
+        return { user };
     }
 });
