@@ -20,6 +20,7 @@ import {
     GraphQLList,
     GraphQLInputObjectType,
 } from 'graphql';
+import { user as u, car as c } from '../clients';
 
 /**
  * Converts given user-defined type to an arguments input type compatible,
@@ -76,4 +77,74 @@ export function toOutputFields(givenType: any) {
     });
 
     return fields;
+}
+
+/**
+ * Extracts list of unique car identifiers form a given user car objects
+ *
+ * @param {u.UserCarObject[]} cars
+ */
+function extractCarIds(cars: u.UserCarObject[]): string[] {
+    return cars.reduce((ids, car) => {
+        car && !~ids.indexOf(car.carId as never) && ids.push(car.carId as never);
+
+        return ids;
+    }, []);
+}
+
+/**
+ * Converts array to map, using as a hash key given field (by default
+ * will tread field = 'id')
+ *
+ * @param {any[]} arr - array of objects
+ * @param {string} [field] - field to use as a hash key
+ * @return {{ [field: string]: any }} - map representation of the input array
+ */
+export function toMap(arr: any[], field: string = 'id') {
+    return arr.reduce((map, item) => {
+        map[item[field]] = item;
+        return map;
+    }, {});
+}
+
+/**
+ * Maps given list of user car objects data to a valid list of requested
+ * via graphql car objects
+ *
+ * @param {u.UserCarObject} userCars
+ * @param {string[]} fields
+ * @param {any} context
+ * @return Promise<Array<Partial<c.CarObject> | null>>
+ */
+export async function toRequestedCarsList(
+    userCars: any[],
+    fields: string[],
+    context: any,
+):  Promise<Array<Partial<c.CarObject> | null>> {
+    if (!(userCars && userCars.length)) {
+        return [];
+    }
+
+    const carIds = extractCarIds(userCars);
+    const cars = toMap(await context.car.fetch(carIds, [...fields, 'id']));
+
+    return userCars.map(userCar => {
+        if (!cars[userCar.carId]) {
+            return null;
+        }
+
+        Object.assign(userCar, cars[userCar.carId]);
+        userCar.id = userCar._id;
+        delete userCar._id;
+
+        if (!~fields.indexOf('carId')) {
+            delete userCar.carId;
+        }
+
+        if (!~fields.indexOf('id')) {
+            delete userCar.id;
+        }
+
+        return userCar as Partial<c.CarObject>;
+    });
 }
