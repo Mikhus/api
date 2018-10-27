@@ -230,6 +230,14 @@ export class Resolvers {
         }
     }
 
+    /**
+     * Returns number of cars in garage for a given user
+     *
+     * @param {u.UserObject} user
+     * @param {any} args
+     * @param {any} context
+     * @return {Promise<number>}
+     */
     @profile()
     public static async carsCount(
         user: u.UserObject,
@@ -247,8 +255,8 @@ export class Resolvers {
      * @param {u.UserObject} user
      * @param {any} args
      * @param {any} context
-     * @return {Promise<Array<Partial<c.CarObject> | null>>}
      * @param {GraphQLResolveInfo} info
+     * @return {Promise<Array<Partial<c.CarObject> | null>>}
      */
     @profile()
     public static async carsCollection(
