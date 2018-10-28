@@ -71,7 +71,7 @@ export const addCar = mutationWithClientMutationId({
 
         const user = await context.user.addCar(
             args.idOrEmail,
-            args.carId,
+            fromGlobalId(args.carId).id,
             args.regNumber,
             fieldsList(info, {
                 transform: { id: '_id' },
