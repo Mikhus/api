@@ -25,6 +25,8 @@ import { fromGlobalId, mutationWithClientMutationId } from 'graphql-relay';
 import { fieldsList } from 'graphql-fields-list';
 import {
     USER_CRITERIA_REQUIRED,
+    DUPLICATE_CAR_ERROR,
+    ResponseError,
 } from '../ResponseError';
 import { userType } from '../entities';
 
@@ -69,16 +71,22 @@ export const addCar = mutationWithClientMutationId({
             args.idOrEmail = fromGlobalId(args.idOrEmail).id;
         }
 
-        const user = await context.user.addCar(
-            args.idOrEmail,
-            fromGlobalId(args.carId).id,
-            args.regNumber,
-            fieldsList(info, {
-                transform: { id: '_id' },
-                path: 'user'
-            }),
-        );
+        try {
+            const user = await context.user.addCar(
+                args.idOrEmail,
+                fromGlobalId(args.carId).id,
+                args.regNumber,
+                fieldsList(info, {
+                    transform: { id: '_id' },
+                    path: 'user'
+                }),
+            );
 
-        return { user };
+            return { user };
+        } catch (err) {
+            throw new ResponseError(err.message, 'ADD_CAR_ERROR');
+        }
+
+        return null
     }
 });
