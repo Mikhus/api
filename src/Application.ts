@@ -34,6 +34,7 @@ import {
     user,
     auth,
     car,
+    timeTable,
 } from '.';
 
 /**
@@ -179,11 +180,13 @@ export class Application {
             user: new user.UserClient(clientOptions),
             auth: new auth.AuthClient(clientOptions),
             car: new car.CarClient(clientOptions),
+            timeTable: new timeTable.TimeTableClient(clientOptions),
         };
 
         await context.user.start();
         await context.auth.start();
         await context.car.start();
+        await context.timeTable.start();
 
         return context;
     }
