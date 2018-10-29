@@ -126,12 +126,12 @@ export namespace user {
          * @param {string} regNumber - car registration number
          * @param {string[]} [selectedFields] - fields to fetch for a modified user object
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
-         * @return {Promise<boolean>}
+         * @return {Promise<UserObject | null>}
          */
         @profile()
         @remote()
-        public async addCar(userId: string, carId: string, regNumber: string, selectedFields?: string[], delay?: IMQDelay): Promise<boolean> {
-            return await this.remoteCall<boolean>(...arguments);
+        public async addCar(userId: string, carId: string, regNumber: string, selectedFields?: string[], delay?: IMQDelay): Promise<UserObject | null> {
+            return await this.remoteCall<UserObject | null>(...arguments);
         }
 
         /**
