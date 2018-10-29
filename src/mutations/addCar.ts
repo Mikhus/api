@@ -39,7 +39,7 @@ export const addCar = mutationWithClientMutationId({
         idOrEmail: {
             type: GraphQLID,
             description:  'User identifier or email address. Optional. ' +
-                'If not passed user must be authenticated.'
+                'If not passed user must be authenticated.',
         },
         carId: {
             type: new GraphQLNonNull(GraphQLString),
@@ -53,7 +53,7 @@ export const addCar = mutationWithClientMutationId({
     outputFields: {
         user: {
             type: userType,
-            description: 'Updated user data object'
+            description: 'Updated user data object',
         },
     },
     async mutateAndGetPayload(
