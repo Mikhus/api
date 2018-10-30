@@ -96,10 +96,6 @@ export const updateUser = mutationWithClientMutationId({
         context: any,
         info: GraphQLResolveInfo,
     ) {
-        if (!info.rootValue.authUser) {
-            throw ERROR_UNAUTHORIZED;
-        }
-
         if (typeof args.isAdmin === 'boolean' ||
             typeof args.isActive === 'boolean'
         ) {
@@ -111,6 +107,12 @@ export const updateUser = mutationWithClientMutationId({
         if (args.id) {
             args._id = fromGlobalId(args.id).id;
             delete args.id;
+
+            if (!info.rootValue.authUser ||
+                info.rootValue.authUser !== args._id
+            ) {
+                throw ERROR_UNAUTHORIZED;
+            }
 
             if (Object.keys(args).length <= 1) {
                 throw USER_DATA_EMPTY;
