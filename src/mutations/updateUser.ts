@@ -154,8 +154,6 @@ export const updateUser = mutationWithClientMutationId({
                 }),
             );
 
-            user._id = toGlobalId('User', user._id);
-
             return { user };
         } catch (err) {
             throw new ResponseError(
