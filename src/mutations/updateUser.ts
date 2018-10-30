@@ -109,7 +109,7 @@ export const updateUser = mutationWithClientMutationId({
             delete args.id;
 
             if (!info.rootValue.authUser ||
-                info.rootValue.authUser !== args._id
+                info.rootValue.authUser._id !== args._id
             ) {
                 throw ERROR_UNAUTHORIZED;
             }
