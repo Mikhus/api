@@ -49,7 +49,7 @@ export const USER_PASSWORD_EMPTY = new ResponseError(
     'USER_PASSWORD_ERROR',
 );
 export const USER_PASSWORD_MISMATCH = new ResponseError(
-    'Wrong password or email provided',
+    'Wrong password provided',
     'USER_PASSWORD_ERROR',
 );
 export const USER_FIRST_NAME_EMPTY = new ResponseError(
@@ -68,4 +68,8 @@ export const USER_CRITERIA_REQUIRED = new ResponseError(
     'User should be logged in, otherwise either user identifier or ' +
     'email address required to fetch requested data',
     'USER_CRITERIA_REQUIRED',
+);
+export const USER_OLD_PASSWORD_EMPTY = new ResponseError(
+    'You must provide old password to verify password change operation',
+    'USER_PASSWORD_ERROR',
 );

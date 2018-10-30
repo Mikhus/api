@@ -198,6 +198,12 @@ input updateUserInput {
   """
   id: ID
 
+  """
+  Old password to use for verification of the new password change. It MUST be
+  provided when the password field is set to non empty value during update mutation.
+  """
+  oldPassword: String
+
   """List of cars associated with the user"""
   cars: [UserCar]
   clientMutationId: String

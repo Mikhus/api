@@ -26,9 +26,9 @@ import {
 import {
     fromGlobalId,
     mutationWithClientMutationId,
-    toGlobalId
 } from 'graphql-relay';
 import { fieldsList } from 'graphql-fields-list';
+import * as crypto from 'crypto';
 import { FieldValidationDefinitions } from 'graphql-validity/lib';
 import {
     ERROR_UNAUTHORIZED,
@@ -38,11 +38,14 @@ import {
     USER_FIRST_NAME_EMPTY,
     USER_LAST_NAME_EMPTY,
     USER_PASSWORD_EMPTY,
+    USER_PASSWORD_MISMATCH,
+    USER_OLD_PASSWORD_EMPTY,
 } from '../ResponseError';
 import { userType } from '../entities';
 import {
     validateOwner,
-    verifyRequestForAdmin, verifyRequestForOwner,
+    verifyRequestForAdmin,
+    verifyRequestForOwner,
 } from '../validators';
 import { toInputFields } from '../helpers';
 
@@ -55,7 +58,14 @@ delete inputFields.id;
 inputFields.id = {
     type: GraphQLID,
     description: 'User identifier. If provided will perform update, if ' +
-        'not provided - will attempt to create new user'
+        'not provided - will attempt to create new user',
+};
+
+inputFields.oldPassword = {
+    type: GraphQLString,
+    description: 'Old password to use for verification of the new password ' +
+        'change. It MUST be provided when the password field is set to ' +
+        'non empty value during update mutation.',
 };
 
 inputFields.cars = {
@@ -83,6 +93,10 @@ const outputFields: any = {
     },
 };
 
+function md5(str: string) {
+    return crypto.createHash('md5').update(str).digest('hex');
+}
+
 /**
  * Checks if a given args valid user input
  *
@@ -91,13 +105,13 @@ const outputFields: any = {
  * @throws {ResponseError}
  */
 function validateUserArgs(args: any, info: GraphQLResolveInfo) {
+    const authUser: any = info.rootValue.authUser;
+
     if (args.id) {
         args._id = fromGlobalId(args.id).id;
         delete args.id;
 
-        if (!info.rootValue.authUser ||
-            info.rootValue.authUser._id !== args._id
-        ) {
+        if (!authUser || authUser._id !== args._id) {
             throw ERROR_UNAUTHORIZED;
         }
 
@@ -106,11 +120,21 @@ function validateUserArgs(args: any, info: GraphQLResolveInfo) {
         }
     }
 
+    if (args.password) {
+        if (!args.oldPassword) {
+            throw USER_OLD_PASSWORD_EMPTY;
+        }
+
+        if (md5(args.oldPassword) !== authUser.password) {
+            throw USER_PASSWORD_MISMATCH;
+        }
+    }
+
     for (let option of [
-        { field: 'firstName', error: USER_FIRST_NAME_EMPTY},
-        { field: 'lastName', error: USER_FIRST_NAME_EMPTY},
-        { field: 'email', error: USER_FIRST_NAME_EMPTY},
-        { field: 'password', error: USER_FIRST_NAME_EMPTY},
+        { field: 'firstName', error: USER_FIRST_NAME_EMPTY },
+        { field: 'lastName', error: USER_LAST_NAME_EMPTY },
+        { field: 'email', error: USER_EMAIL_EMPTY },
+        { field: 'password', error: USER_PASSWORD_EMPTY },
     ]) {
         if (args[option.field] !== undefined && !args[option.field]) {
             throw option.error;
