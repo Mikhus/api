@@ -27,10 +27,6 @@ import { user as u, car as c } from '../clients';
 import { clientOptions } from '../../config';
 import { toRequestedCarsList } from './converters';
 
-interface UserCarsMap {
-    [id: string]: u.UserCarObject;
-}
-
 /**
  * Implementation of specific resolvers for  GraphQL schema
  */
@@ -244,9 +240,19 @@ export class Resolvers {
         args: any,
         context: any,
     ): Promise<number> {
-        return user.cars !== undefined
-            ? user.cars.length
-            : await context.user.carsCount(user._id);
+        try {
+            let id: any = fromGlobalId(String(user._id));
+
+            id = id.type === 'User' ? id.id : user._id;
+
+            return user.cars !== undefined
+                ? user.cars.length
+                : await context.user.carsCount(id);
+        } catch (err) {
+            Resolvers.logger.error(err);
+        }
+
+        return 0;
     }
 
     /**

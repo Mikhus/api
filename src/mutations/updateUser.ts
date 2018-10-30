@@ -41,7 +41,7 @@ import {
 import { userType } from '../entities';
 import {
     validateOwner,
-    verifyRequestForAdmin,
+    verifyRequestForAdmin, verifyRequestForOwner,
 } from '../validators';
 import { toInputFields } from '../helpers';
 
@@ -98,7 +98,10 @@ export const updateUser = mutationWithClientMutationId({
         if (typeof args.isAdmin === 'boolean' ||
             typeof args.isActive === 'boolean'
         ) {
+            console.log('admin change');
             verifyRequestForAdmin(info);
+        } else {
+            verifyRequestForOwner(info);
         }
 
         if (args.id) {
