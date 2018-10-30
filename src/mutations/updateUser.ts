@@ -38,7 +38,7 @@ import {
     USER_FIRST_NAME_EMPTY,
     USER_LAST_NAME_EMPTY,
     USER_PASSWORD_EMPTY,
-    USER_PASSWORD_MISMATCH,
+    USER_OLD_PASSWORD_MISMATCH,
     USER_OLD_PASSWORD_EMPTY,
 } from '../ResponseError';
 import { userType } from '../entities';
@@ -126,7 +126,7 @@ function validateUserArgs(args: any, info: GraphQLResolveInfo) {
         }
 
         if (md5(args.oldPassword) !== authUser.password) {
-            throw USER_PASSWORD_MISMATCH;
+            throw USER_OLD_PASSWORD_MISMATCH;
         }
     }
 

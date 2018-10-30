@@ -49,7 +49,7 @@ export const USER_PASSWORD_EMPTY = new ResponseError(
     'USER_PASSWORD_ERROR',
 );
 export const USER_PASSWORD_MISMATCH = new ResponseError(
-    'Wrong password provided',
+    'Wrong password or email provided',
     'USER_PASSWORD_ERROR',
 );
 export const USER_FIRST_NAME_EMPTY = new ResponseError(
@@ -71,5 +71,9 @@ export const USER_CRITERIA_REQUIRED = new ResponseError(
 );
 export const USER_OLD_PASSWORD_EMPTY = new ResponseError(
     'You must provide old password to verify password change operation',
+    'USER_PASSWORD_ERROR',
+);
+export const USER_OLD_PASSWORD_MISMATCH = new ResponseError(
+    'Wrong current password provided',
     'USER_PASSWORD_ERROR',
 );
