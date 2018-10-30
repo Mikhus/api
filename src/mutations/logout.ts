@@ -47,6 +47,10 @@ export const logout = mutationWithClientMutationId({
         context: any,
         info: GraphQLResolveInfo,
     ) {
+        if (!info.rootValue.authUser) {
+            throw ERROR_UNAUTHORIZED;
+        }
+
         const { isAdmin, isActive, email } = info.rootValue;
         let currentUser = undefined;
 

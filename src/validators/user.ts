@@ -88,6 +88,9 @@ export function validateOwner(...args: any[]) {
     const isAdmin = authUser && authUser.isActive && authUser.isAdmin;
     const isOwner = (data && authUser && authUser.isActive && (
         (data._id && data._id === authUser._id) ||
+        (data.idOrEmail && (
+            data.idOrEmail === authUser.id ||
+            data.idOrEmail === authUser.email)) ||
         (data.id && (
             data.id === authUser._id ||
             fromGlobalId(data.id).id === authUser._id)) ||

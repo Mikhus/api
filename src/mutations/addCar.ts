@@ -25,9 +25,10 @@ import { fromGlobalId, mutationWithClientMutationId } from 'graphql-relay';
 import { fieldsList } from 'graphql-fields-list';
 import {
     USER_CRITERIA_REQUIRED,
-    ResponseError,
+    ResponseError, ERROR_UNAUTHORIZED,
 } from '../ResponseError';
 import { userType } from '../entities';
+import { verifyRequestForOwner } from "../validators";
 
 /**
  * GraphQL Mutation: addCar - adds a car to a user
@@ -61,6 +62,12 @@ export const addCar = mutationWithClientMutationId({
         context: any,
         info: GraphQLResolveInfo,
     ) {
+        if (!info.rootValue.authUser) {
+            throw ERROR_UNAUTHORIZED;
+        }
+
+        verifyRequestForOwner(info);
+
         if (!args.idOrEmail) {
             const user = (info.rootValue as any).authUser;
             args.idOrEmail = user && user.id;

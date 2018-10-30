@@ -31,6 +31,7 @@ import {
 import { fieldsList } from 'graphql-fields-list';
 import { FieldValidationDefinitions } from 'graphql-validity/lib';
 import {
+    ERROR_UNAUTHORIZED,
     ResponseError,
     USER_DATA_EMPTY,
     USER_EMAIL_EMPTY,
@@ -95,6 +96,10 @@ export const updateUser = mutationWithClientMutationId({
         context: any,
         info: GraphQLResolveInfo,
     ) {
+        if (!info.rootValue.authUser) {
+            throw ERROR_UNAUTHORIZED;
+        }
+
         if (typeof args.isAdmin === 'boolean' ||
             typeof args.isActive === 'boolean'
         ) {
