@@ -98,7 +98,6 @@ export const updateUser = mutationWithClientMutationId({
         if (typeof args.isAdmin === 'boolean' ||
             typeof args.isActive === 'boolean'
         ) {
-            console.log('admin change');
             verifyRequestForAdmin(info);
         } else {
             verifyRequestForOwner(info);
