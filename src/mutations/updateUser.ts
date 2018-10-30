@@ -84,6 +84,41 @@ const outputFields: any = {
 };
 
 /**
+ * Checks if a given args valid user input
+ *
+ * @param {any} args
+ * @param {GraphQLResolveInfo} info
+ * @throws {ResponseError}
+ */
+function validateUserArgs(args: any, info: GraphQLResolveInfo) {
+    if (args.id) {
+        args._id = fromGlobalId(args.id).id;
+        delete args.id;
+
+        if (!info.rootValue.authUser ||
+            info.rootValue.authUser._id !== args._id
+        ) {
+            throw ERROR_UNAUTHORIZED;
+        }
+
+        if (Object.keys(args).length <= 1) {
+            throw USER_DATA_EMPTY;
+        }
+    }
+
+    for (let option of [
+        { field: 'firstName', error: USER_FIRST_NAME_EMPTY},
+        { field: 'lastName', error: USER_FIRST_NAME_EMPTY},
+        { field: 'email', error: USER_FIRST_NAME_EMPTY},
+        { field: 'password', error: USER_FIRST_NAME_EMPTY},
+    ]) {
+        if (args[option.field] !== undefined && !args[option.field]) {
+            throw option.error;
+        }
+    }
+}
+
+/**
  * GraphQL Mutation: updateUser - modifies user data
  */
 export const updateUser = mutationWithClientMutationId({
@@ -104,36 +139,7 @@ export const updateUser = mutationWithClientMutationId({
             verifyRequestForOwner(info);
         }
 
-        if (args.id) {
-            args._id = fromGlobalId(args.id).id;
-            delete args.id;
-
-            if (!info.rootValue.authUser ||
-                info.rootValue.authUser._id !== args._id
-            ) {
-                throw ERROR_UNAUTHORIZED;
-            }
-
-            if (Object.keys(args).length <= 1) {
-                throw USER_DATA_EMPTY;
-            }
-        } else {
-            if (!args.email) {
-                throw USER_EMAIL_EMPTY;
-            }
-
-            else if (!args.password) {
-                throw USER_PASSWORD_EMPTY;
-            }
-
-            else if (!args.firstName) {
-                throw USER_FIRST_NAME_EMPTY;
-            }
-
-            else if (!args.lastName) {
-                throw USER_LAST_NAME_EMPTY;
-            }
-        }
+        validateUserArgs(args, info);
 
         try {
             for (let car of args.cars || []) {
