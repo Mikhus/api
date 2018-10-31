@@ -77,6 +77,10 @@ export const addCar = mutationWithClientMutationId({
             args.idOrEmail = fromGlobalId(args.idOrEmail).id;
         }
 
+        if (args.regNumber) {
+            args.regNumber = args.regNumber.toUpperCase();
+        }
+
         try {
             const user = await context.user.addCar(
                 args.idOrEmail,
