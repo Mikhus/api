@@ -22,9 +22,8 @@ export namespace timeTable {
         id: number;
         carId: string;
         userId: string;
-        type: string;
-        startDime: string;
-        duration: number;
+        type: 'fast' | 'std' | 'full';
+        duration: [string, string];
     }
 
     export interface TimeTableOptions {
