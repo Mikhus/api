@@ -120,7 +120,7 @@ function validateUserArgs(args: any, info: GraphQLResolveInfo) {
         }
     }
 
-    if (args.password) {
+    if (args._id && args.password) {
         if (!args.oldPassword) {
             throw USER_OLD_PASSWORD_EMPTY;
         }
