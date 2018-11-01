@@ -23,7 +23,8 @@ import {
 } from 'graphql-relay';
 import { ILogger, profile } from '@imqueue/rpc';
 import { fieldsList } from 'graphql-fields-list';
-import { user as u, car as c } from '../clients';
+import { Context } from '../types';
+import { user as u, car as c, timeTable } from '../clients';
 import { clientOptions } from '../../config';
 import { toRequestedCarsList } from './converters';
 
@@ -32,7 +33,6 @@ import { toRequestedCarsList } from './converters';
  */
 export class Resolvers {
 
-    // @ts-ignore
     // noinspection JSUnusedGlobalSymbols
     public static logger: ILogger = clientOptions.logger || console;
 
@@ -41,14 +41,14 @@ export class Resolvers {
      *
      * @param {any} source
      * @param {{ [name: string]: any }} args
-     * @param {any} context
+     * @param {Context} context
      * @param {GraphQLResolveInfo} info
      * @return {Promise<any>}
      */
     @profile()
     public static async fetchNodeById(
         globalId: string,
-        context: any,
+        context: Context,
         info: GraphQLResolveInfo
     ) {
         const { type, id } = fromGlobalId(globalId);
@@ -67,7 +67,7 @@ export class Resolvers {
      *
      * @param {any} source
      * @param {{ [name: string]: any }} args
-     * @param {any} context
+     * @param {Context} context
      * @param {GraphQLResolveInfo} info
      * @return {Promise<Partial<UserObject>>}
      */
@@ -75,7 +75,7 @@ export class Resolvers {
     public static async fetchUsers(
         source: any,
         args: { [name: string]: any },
-        context: any,
+        context: Context,
         info: GraphQLResolveInfo,
     ): Promise<Connection<Partial<u.UserObject>>> {
         const authUser = (info.rootValue as any).authUser;
@@ -107,7 +107,7 @@ export class Resolvers {
      *
      * @param {any} source
      * @param {{ id?: string, email?: string }} args
-     * @param {any} context
+     * @param {Context} context
      * @param {GraphQLResolveInfo} info
      * @return {Promise<Partial<UserObject> | null>}
      */
@@ -115,7 +115,7 @@ export class Resolvers {
     public static async fetchUserByIdOrEmail(
         source: any,
         args: { idOrEmail?: string },
-        context: any,
+        context: Context,
         info: GraphQLResolveInfo,
     ): Promise<Partial<u.UserObject> | null> {
         if (!args.idOrEmail) {
@@ -156,7 +156,7 @@ export class Resolvers {
      *
      * @param {any} source
      * @param {{ id: string }} args
-     * @param {any} context
+     * @param {Context} context
      * @param {GraphQLResolveInfo} info
      * @return {Promise<Partial<c.CarObject> | null>}
      */
@@ -164,14 +164,14 @@ export class Resolvers {
     public static async fetchCarById(
         source: any,
         args: { id: string },
-        context: any,
+        context: Context,
         info: GraphQLResolveInfo,
     ): Promise<Partial<c.CarObject> | null> {
         try {
-            return context.car.fetch(
+            return await context.car.fetch(
                 fromGlobalId(args.id).id,
                 fieldsList(info)
-            );
+            ) as Partial<c.CarObject> | null;
         } catch(err) {
             Resolvers.logger.error(err);
             return null;
@@ -183,7 +183,7 @@ export class Resolvers {
      *
      * @param {any} source
      * @param {{ brand: string }} args
-     * @param {any} context
+     * @param {Context} context
      * @param {GraphQLResolveInfo} info
      * @return {Promise<Partial<c.CarObject>[]>>}
      */
@@ -191,7 +191,7 @@ export class Resolvers {
     public static async fetchCars(
         source: any,
         args: { brand: string },
-        context: any,
+        context: Context,
         info: GraphQLResolveInfo,
     ): Promise<Partial<c.CarObject>[]> {
         try {
@@ -207,7 +207,7 @@ export class Resolvers {
      *
      * @param {any} source
      * @param {{ id?: string, email?: string }} args
-     * @param {any} context
+     * @param {Context} context
      * @param {GraphQLResolveInfo} info
      * @return {Promise<string[]>}
      */
@@ -215,7 +215,7 @@ export class Resolvers {
     public static async fetchCarBrands(
         source: any,
         args: { brand: string },
-        context: any,
+        context: Context,
         info: GraphQLResolveInfo,
     ): Promise<string[]> {
         try {
@@ -231,14 +231,14 @@ export class Resolvers {
      *
      * @param {u.UserObject} user
      * @param {any} args
-     * @param {any} context
+     * @param {Context} context
      * @return {Promise<number>}
      */
     @profile()
     public static async carsCount(
         user: u.UserObject,
         args: any,
-        context: any,
+        context: Context,
     ): Promise<number> {
         try {
             let id: any = fromGlobalId(String(user._id));
@@ -260,7 +260,7 @@ export class Resolvers {
      *
      * @param {u.UserObject} user
      * @param {any} args
-     * @param {any} context
+     * @param {Context} context
      * @param {GraphQLResolveInfo} info
      * @return {Promise<Array<Partial<c.CarObject> | null>>}
      */
@@ -268,8 +268,8 @@ export class Resolvers {
     public static async carsCollection(
         user: u.UserObject,
         args: any,
-        context: any,
-        info: GraphQLResolveInfo
+        context: Context,
+        info: GraphQLResolveInfo,
     ): Promise<Array<Partial<c.CarObject> | null>> {
         try {
             return toRequestedCarsList(
@@ -282,5 +282,21 @@ export class Resolvers {
         }
 
         return [];
+    }
+
+    /**
+     * Returns reservation time table options defined by remote service
+     *
+     * @param {timeTable.TimeTableOptions} options
+     * @param {any} args
+     * @param {Context} context
+     */
+    @profile()
+    public static async fetchOptions(
+        options: timeTable.TimeTableOptions,
+        args: any,
+        context: Context,
+    ): Promise<timeTable.TimeTableOptions> {
+        return await context.timeTable.config();
     }
 }

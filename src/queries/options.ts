@@ -15,3 +15,13 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+import { optionsType } from '../entities';
+import { Resolvers } from '../helpers';
+/**
+ * GraphQL Queries: users - query for list of users
+ */
+export const options: any = {
+    description: 'Fetches all options defined for reservation time table',
+    type: optionsType,
+    resolve: Resolvers.fetchOptions,
+};

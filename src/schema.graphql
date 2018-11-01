@@ -18,6 +18,18 @@ type addCarPayload {
   clientMutationId: String
 }
 
+"""Base time option item entity"""
+type BaseTimeOption {
+  """Option key"""
+  key: String
+
+  """Option title"""
+  title: String
+
+  """Option title"""
+  duration: Int
+}
+
 """Car entity"""
 type Car implements Node {
   """The ID of an object"""
@@ -97,6 +109,28 @@ interface Node {
   id: ID!
 }
 
+"""Time-table options entity"""
+type Options implements Node {
+  """The ID of an object"""
+  id: ID!
+
+  """
+  Start working time, should be a string in form of "HH:MM"
+  """
+  start: String
+
+  """
+  End working time, should be a string in form of "HH:MM"
+  """
+  end: String
+
+  """Number of boxes available on washing station"""
+  boxes: Int
+
+  """Washing time options defined by a service"""
+  baseTime: [BaseTimeOption]
+}
+
 """Information about pagination in a connection."""
 type PageInfo {
   """When paginating forwards, are there more items?"""
@@ -157,6 +191,9 @@ type Query {
 
   """Fetches list of car brands"""
   brands: [String]
+
+  """Fetches all options defined for reservation time table"""
+  options: Options
 }
 
 input removeCarInput {

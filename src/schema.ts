@@ -19,7 +19,7 @@ import { GraphQLObjectType, GraphQLSchema } from 'graphql';
 import { wrapResolvers } from 'graphql-validity/lib';
 import { nodeField } from './entities';
 import { updateUser, login, logout, addCar, removeCar } from './mutations';
-import { user, users, car, cars, brands } from './queries';
+import { user, users, car, cars, brands, options } from './queries';
 
 /**
  * Defining Query type for GraphQL schema
@@ -33,6 +33,7 @@ const Query: GraphQLObjectType = new GraphQLObjectType({
         cars,
         car,
         brands,
+        options,
     },
 });
 
