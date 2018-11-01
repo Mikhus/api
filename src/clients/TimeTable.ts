@@ -26,13 +26,17 @@ export namespace timeTable {
         duration: [string, string];
     }
 
+    export interface BaseTimeOption {
+        key: string;
+        title: string;
+        duration: number;
+    }
+
     export interface TimeTableOptions {
-        start: number;
-        end: number;
-        maxReservations: number;
-        baseTime: { [name: string]: number };
-        appendTime: { [appendType: string]: { [key: string]: number } };
-        timezone: string;
+        start: string;
+        end: string;
+        boxes: number;
+        baseTime: BaseTimeOption[];
     }
 
     export class TimeTableClient extends IMQClient {
@@ -57,12 +61,12 @@ export namespace timeTable {
          *
          * @param {Reservation} reservation
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
-         * @return {Promise<void>}
+         * @return {Promise<boolean>}
          */
         @profile()
         @remote()
-        public async reserve(reservation: Reservation, delay?: IMQDelay): Promise<void> {
-            return await this.remoteCall<void>(...arguments);
+        public async reserve(reservation: Reservation, delay?: IMQDelay): Promise<boolean> {
+            return await this.remoteCall<boolean>(...arguments);
         }
 
         /**
