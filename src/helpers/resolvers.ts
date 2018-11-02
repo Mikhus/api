@@ -339,7 +339,7 @@ export class Resolvers {
     ): Promise<Partial<c.CarObject> | null> {
         const userCar = await context.user.getCar(
             reservation.userId,
-            reservation.carId
+            reservation.carId,
         );
 
         if (!userCar) {
