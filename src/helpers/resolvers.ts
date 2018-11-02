@@ -335,6 +335,6 @@ export class Resolvers {
         context: Context,
         info: GraphQLResolveInfo,
     ): Promise<c.CarObject | null> {
-        return context.user.
+        return context.user.getC
     }
 }
