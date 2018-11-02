@@ -354,6 +354,16 @@ export class Resolvers {
         return Object.assign(car, userCar) as Partial<c.CarObject>;
     }
 
+    /**
+     * Fetches and returns single  reservation record object by a given
+     * identifier
+     *
+     * @param {any} source
+     * @param {{ id: string }} args
+     * @param {Context} context
+     * @param {GraphQLResolveInfo} info
+     * @return {Promise<Partial<timeTable.Reservation> | null>}
+     */
     @profile()
     public static async fetchReservation(
         source: any,
@@ -367,6 +377,15 @@ export class Resolvers {
         );
     }
 
+    /**
+     * Fetches list of reservation record objects
+     *
+     * @param {any} source
+     * @param {{ date?: string }} args
+     * @param {Context} context
+     * @param {GraphQLResolveInfo} info
+     * @return {Promise<Array<Partial<timeTable.Reservation> | null>>}
+     */
     @profile()
     public static async listReservations(
         source: any,
