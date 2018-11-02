@@ -79,6 +79,6 @@ export const optionsType = new GraphQLObjectType({
             type: new GraphQLList(baseTimeOption),
             description: 'Washing time options defined by a service',
             resolve: (options: TimeTableOptions) => options.baseTime,
-        }
+        },
     },
 });
