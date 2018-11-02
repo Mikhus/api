@@ -349,6 +349,6 @@ export class Resolvers {
         (userCar as any).id = userCar._id;
         delete userCar._id;
 
-        return Object.assign({}, car, userCar) as Partial<c.CarObject>;
+        return Object.assign(car, userCar) as Partial<c.CarObject>;
     }
 }
