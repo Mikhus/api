@@ -45,13 +45,14 @@ export namespace timeTable {
          * Returns a list of reservations starting from a given time (or from
          * current time if omitted)
          *
-         * @param {string} startFrom
+         * @param {string} [startFrom]
+         * @param {string[]} [fields]
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
          * @return {Promise<Reservation[]>}
          */
         @profile()
         @remote()
-        public async list(startFrom: string, delay?: IMQDelay): Promise<Reservation[]> {
+        public async list(startFrom?: string, fields?: string[], delay?: IMQDelay): Promise<Reservation[]> {
             return await this.remoteCall<Reservation[]>(...arguments);
         }
 
