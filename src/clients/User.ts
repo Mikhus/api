@@ -154,12 +154,12 @@ export namespace user {
          * @param {string} userId - user identifier
          * @param {string} carId - car identifier
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
-         * @return {Promise<>}
+         * @return {Promise<UserCarObject | null>}
          */
         @profile()
         @remote()
-        public async getCar(userId: string, carId: string, delay?: IMQDelay): Promise<> {
-            return await this.remoteCall<>(...arguments);
+        public async getCar(userId: string, carId: string, delay?: IMQDelay): Promise<UserCarObject | null> {
+            return await this.remoteCall<UserCarObject | null>(...arguments);
         }
 
     }

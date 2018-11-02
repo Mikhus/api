@@ -334,7 +334,21 @@ export class Resolvers {
         args: any,
         context: Context,
         info: GraphQLResolveInfo,
-    ): Promise<c.CarObject | null> {
-        return context.user.getC
+    ): Promise<Partial<c.CarObject> | null> {
+        const userCar = await context.user.getCar(
+            reservation.userId,
+            reservation.carId
+        );
+
+        if (!userCar) {
+            return null;
+        }
+
+        const car = await context.car.fetch(userCar.carId);
+
+        userCar.id = userCar._id;
+        delete userCar._id;
+
+        return Object.assign({}, car, userCar);
     }
 }
