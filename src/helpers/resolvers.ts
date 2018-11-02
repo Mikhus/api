@@ -299,4 +299,42 @@ export class Resolvers {
     ): Promise<timeTable.TimeTableOptions> {
         return await context.timeTable.config();
     }
+
+    /**
+     * Fetches user object for a given reservation record object
+     *
+     * @param {timeTable.Reservation} reservation
+     * @param {any} args
+     * @param {Context} context
+     * @param {GraphQLResolveInfo} info
+     */
+    @profile()
+    public static async fetchReservationUser(
+        reservation: timeTable.Reservation,
+        args: any,
+        context: Context,
+        info: GraphQLResolveInfo,
+    ): Promise<u.UserObject | null> {
+        return await context.user.fetch(
+            reservation.userId,
+            fieldsList(info, { path: 'user' }),
+        );
+    }
+
+    /**
+     * Fetches car object for a given reservation record object
+     *
+     * @param {timeTable.Reservation} reservation
+     * @param {any} args
+     * @param {Context} context
+     * @param {GraphQLResolveInfo} info
+     */
+    public static async fetchReservationCar(
+        reservation: timeTable.Reservation,
+        args: any,
+        context: Context,
+        info: GraphQLResolveInfo,
+    ): Promise<c.CarObject | null> {
+        return context.user.
+    }
 }

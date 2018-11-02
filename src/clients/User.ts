@@ -148,5 +148,19 @@ export namespace user {
             return await this.remoteCall<UserObject | null>(...arguments);
         }
 
+        /**
+         * Returns car object of a given user, fetched by identifier
+         *
+         * @param {string} userId - user identifier
+         * @param {string} carId - car identifier
+         * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
+         * @return {Promise<>}
+         */
+        @profile()
+        @remote()
+        public async getCar(userId: string, carId: string, delay?: IMQDelay): Promise<> {
+            return await this.remoteCall<>(...arguments);
+        }
+
     }
 }
