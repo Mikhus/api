@@ -371,10 +371,15 @@ export class Resolvers {
         context: Context,
         info: GraphQLResolveInfo,
     ): Promise<Partial<timeTable.Reservation> | null> {
-        return await context.timeTable.fetch(
-            fromGlobalId(args.id).id,
-            Resolvers.reservationFields(info)
-        );
+        try {
+            return await context.timeTable.fetch(
+                fromGlobalId(args.id).id,
+                Resolvers.reservationFields(info)
+            );
+        } catch (err) {
+            Resolvers.logger.error(err);
+            return null;
+        }
     }
 
     /**
@@ -393,10 +398,15 @@ export class Resolvers {
         context: Context,
         info: GraphQLResolveInfo,
     ): Promise<Array<Partial<timeTable.Reservation> | null>> {
-        return await context.timeTable.list(
-            args.date ? new Date(args.date).toISOString() : undefined,
-            Resolvers.reservationFields(info)
-        );
+        try {
+            return await context.timeTable.list(
+                args.date ? new Date(args.date).toISOString() : undefined,
+                Resolvers.reservationFields(info)
+            );
+        } catch (err) {
+            Resolvers.logger.error(err);
+            return [];
+        }
     }
 
     /**
