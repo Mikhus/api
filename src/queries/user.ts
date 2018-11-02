@@ -33,7 +33,7 @@ export const user: any = {
         idOrEmail: {
             type: GraphQLString,
             description: 'User identifier or email to match user object. ' +
-                'Optional.'
+                'Optional.',
         },
     },
     resolve: Resolvers.fetchUserByIdOrEmail,

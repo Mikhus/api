@@ -57,6 +57,20 @@ export namespace timeTable {
         }
 
         /**
+         * Fetches and returns single reservation record by its identifier
+         *
+         * @param {string} id
+         * @param {string[]} [fields]
+         * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
+         * @return {Promise<Reservation | null>}
+         */
+        @profile()
+        @remote()
+        public async fetch(id: string, fields?: string[], delay?: IMQDelay): Promise<Reservation | null> {
+            return await this.remoteCall<Reservation | null>(...arguments);
+        }
+
+        /**
          * Makes a given reservation or throws a proper error
          * if action is not possible
          *

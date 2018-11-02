@@ -27,6 +27,7 @@ import { Context } from '../types';
 import { user as u, car as c, timeTable } from '../clients';
 import { clientOptions } from '../../config';
 import { toRequestedCarsList } from './converters';
+import { fieldsListUnique } from '../helpers';
 
 /**
  * Implementation of specific resolvers for  GraphQL schema
@@ -329,6 +330,7 @@ export class Resolvers {
      * @param {Context} context
      * @param {GraphQLResolveInfo} info
      */
+    @profile()
     public static async fetchReservationCar(
         reservation: timeTable.Reservation,
         args: any,
@@ -350,5 +352,46 @@ export class Resolvers {
         delete userCar._id;
 
         return Object.assign(car, userCar) as Partial<c.CarObject>;
+    }
+
+    @profile()
+    public static async fetchReservation(
+        source: any,
+        args: { id: string },
+        context: Context,
+        info: GraphQLResolveInfo,
+    ): Promise<Partial<timeTable.Reservation> | null> {
+        return await context.timeTable.fetch(
+            fromGlobalId(args.id).id,
+            Resolvers.reservationFields(info)
+        );
+    }
+
+    @profile()
+    public static async listReservations(
+        source: any,
+        args: { date?: string },
+        context: Context,
+        info: GraphQLResolveInfo,
+    ): Promise<Array<Partial<timeTable.Reservation> | null>> {
+        return await context.timeTable.list(
+            args.date ? new Date(args.date).toISOString() : undefined,
+            Resolvers.reservationFields(info)
+        );
+    }
+
+    /**
+     * Returns requested fields for reservation record object(s) requested
+     *
+     * @param {GraphQLResolveInfo} info
+     * @return {string[]}
+     */
+    public static reservationFields(info: GraphQLResolveInfo) {
+        return fieldsListUnique(info, { transform: {
+            start: 'duration',
+            end: 'duration',
+            car: 'carId',
+            user: 'userId',
+        }});
     }
 }

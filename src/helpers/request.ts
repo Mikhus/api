@@ -16,6 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import * as express from 'express';
+import { GraphQLResolveInfo } from 'graphql';
+import { fieldsList, FieldsListOptions } from 'graphql-fields-list';
 
 /**
  * Express middleware for adding user data to request if
@@ -52,4 +54,19 @@ export function requestUser(context: any) {
             next(err);
         }
     }
+}
+
+/**
+ * Returns filtered fieldList options, ensuring there are no duplicates
+ *
+ * @param {GraphQLResolveInfo} info
+ * @param {FieldsListOptions} options
+ */
+export function fieldsListUnique(
+    info: GraphQLResolveInfo,
+    options?: FieldsListOptions
+) {
+    return fieldsList(info, options)
+        .filter((field: string, pos: number, arr: string[]) =>
+            arr.indexOf(field) === pos);
 }
