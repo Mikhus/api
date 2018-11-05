@@ -19,7 +19,8 @@ import {
     GraphQLString,
     GraphQLNonNull,
     GraphQLResolveInfo,
-    GraphQLID,
+    GraphQLList,
+    GraphQLID, GraphQLObjectType,
 } from 'graphql';
 import { fromGlobalId, mutationWithClientMutationId } from 'graphql-relay';
 import { fieldsList } from 'graphql-fields-list';
@@ -28,38 +29,47 @@ import {
     ResponseError,
     ERROR_UNAUTHORIZED,
 } from '../ResponseError';
-import { userType } from '../entities';
+import { reservationType } from '../entities';
 import { verifyRequestForOwner } from "../validators";
 
 /**
  * GraphQL Mutation: addCar - adds a car to a user
  */
-export const addCar = mutationWithClientMutationId({
-    name: 'addCar',
-    description: 'Adds a car to a user',
+export const reserve = mutationWithClientMutationId({
+    name: 'reserve',
+    description: 'Makes car washing time reservation',
     inputFields: {
-        idOrEmail: {
+        userId: {
             type: GraphQLID,
-            description:  'User identifier or email address. Optional. ' +
-                'If not passed user must be authenticated.',
+            description:  'User identifier',
         },
         carId: {
-            type: new GraphQLNonNull(GraphQLString),
+            type: new GraphQLNonNull(GraphQLID),
             description: 'Selected car identifier',
         },
-        regNumber: {
+        type: {
             type: new GraphQLNonNull(GraphQLString),
-            description: 'User\'s car registration number',
+            description: 'Reservation washing type',
+        },
+        duration: {
+            type: new GraphQLNonNull(new GraphQLList(GraphQLString)),
+            description: 'Time range as list of two date/time strings in ' +
+                'ISO format representing start and end date/time',
         },
     },
     outputFields: {
-        user: {
-            type: userType,
-            description: 'Updated user data object',
+        reservations: {
+            type: new GraphQLList(reservationType),
+            description: 'Updated list of reservations',
         },
     },
     async mutateAndGetPayload(
-        args: { idOrEmail?: string, carId: string, regNumber: string },
+        args: {
+            userId?: string,
+            carId: string,
+            type: string,
+            duration: [string, string],
+        },
         context: any,
         info: GraphQLResolveInfo,
     ) {
@@ -69,35 +79,28 @@ export const addCar = mutationWithClientMutationId({
 
         verifyRequestForOwner(info);
 
-        if (!args.idOrEmail) {
+        if (!args.userId) {
             const user = (info.rootValue as any).authUser;
-            args.idOrEmail = user && user.id;
-        } else if (!args.idOrEmail) {
+            args.userId = user && user.id;
+        } else if (!args.userId) {
             throw USER_CRITERIA_REQUIRED;
         } else {
-            args.idOrEmail = fromGlobalId(args.idOrEmail).id;
+            args.userId = fromGlobalId(args.userId).id;
         }
 
-        if (args.regNumber) {
-            args.regNumber = args.regNumber.toUpperCase();
-        }
+        args.carId = fromGlobalId(args.carId).id;
 
         try {
-            const user = await context.user.addCar(
-                args.idOrEmail,
-                fromGlobalId(args.carId).id,
-                args.regNumber,
-                fieldsList(info, {
-                    transform: { id: '_id' },
-                    path: 'user'
-                }),
+            const reservations = await context.timeTable.reserve(
+                args,
+                fieldsList(info, { path: 'reservations' }),
             );
 
-            return { user };
+            return { reservations };
         } catch (err) {
-            throw new ResponseError(err.message, 'ADD_CAR_ERROR');
+            throw new ResponseError(err.message, 'ADD_RESERVATION_ERROR');
         }
 
-        return null;
+        return [];
     }
 });
