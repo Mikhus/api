@@ -415,12 +415,12 @@ export class Resolvers {
      * @param {GraphQLResolveInfo} info
      * @return {string[]}
      */
-    public static reservationFields(info: GraphQLResolveInfo) {
-        return fieldsListUnique(info, { transform: {
+    public static reservationFields(info: GraphQLResolveInfo, path?: string) {
+        return fieldsListUnique(info, Object.assign({ transform: {
             start: 'duration',
             end: 'duration',
             car: 'carId',
             user: 'userId',
-        }});
+        }}, path ? { path } : {}));
     }
 }

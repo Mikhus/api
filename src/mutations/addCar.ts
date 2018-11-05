@@ -29,7 +29,7 @@ import {
     ERROR_UNAUTHORIZED,
 } from '../ResponseError';
 import { userType } from '../entities';
-import { verifyRequestForOwner } from "../validators";
+import { verifyRequestForOwner } from '../validators';
 
 /**
  * GraphQL Mutation: addCar - adds a car to a user
@@ -71,7 +71,7 @@ export const addCar = mutationWithClientMutationId({
 
         if (!args.idOrEmail) {
             const user = (info.rootValue as any).authUser;
-            args.idOrEmail = user && user.id;
+            args.idOrEmail = user && user._id;
         } else if (!args.idOrEmail) {
             throw USER_CRITERIA_REQUIRED;
         } else {

@@ -20,7 +20,7 @@ import {
     GraphQLNonNull,
     GraphQLResolveInfo,
     GraphQLList,
-    GraphQLID, GraphQLObjectType,
+    GraphQLID,
 } from 'graphql';
 import { fromGlobalId, mutationWithClientMutationId } from 'graphql-relay';
 import { fieldsList } from 'graphql-fields-list';
@@ -30,7 +30,8 @@ import {
     ERROR_UNAUTHORIZED,
 } from '../ResponseError';
 import { reservationType } from '../entities';
-import { verifyRequestForOwner } from "../validators";
+import { verifyRequestForOwner } from '../validators';
+import { Resolvers } from '../helpers';
 
 /**
  * GraphQL Mutation: addCar - adds a car to a user
@@ -81,7 +82,7 @@ export const reserve = mutationWithClientMutationId({
 
         if (!args.userId) {
             const user = (info.rootValue as any).authUser;
-            args.userId = user && user.id;
+            args.userId = user && user._id;
         } else if (!args.userId) {
             throw USER_CRITERIA_REQUIRED;
         } else {
@@ -93,7 +94,7 @@ export const reserve = mutationWithClientMutationId({
         try {
             const reservations = await context.timeTable.reserve(
                 args,
-                fieldsList(info, { path: 'reservations' }),
+                Resolvers.reservationFields(info, 'reservations'),
             );
 
             return { reservations };
