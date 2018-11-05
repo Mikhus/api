@@ -75,12 +75,13 @@ export namespace timeTable {
          * if action is not possible
          *
          * @param {Reservation} reservation
+         * @param {string[]} [fields]
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
          * @return {Promise<Reservation[]>}
          */
         @profile()
         @remote()
-        public async reserve(reservation: Reservation, delay?: IMQDelay): Promise<Reservation[]> {
+        public async reserve(reservation: Reservation, fields?: string[], delay?: IMQDelay): Promise<Reservation[]> {
             return await this.remoteCall<Reservation[]>(...arguments);
         }
 
