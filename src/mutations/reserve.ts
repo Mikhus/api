@@ -23,7 +23,6 @@ import {
     GraphQLID,
 } from 'graphql';
 import { fromGlobalId, mutationWithClientMutationId } from 'graphql-relay';
-import { fieldsList } from 'graphql-fields-list';
 import {
     USER_CRITERIA_REQUIRED,
     ResponseError,
