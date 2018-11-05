@@ -68,7 +68,7 @@ export const optionsType = new GraphQLObjectType({
             type: GraphQLString,
             description: 'End working time, should be a string in ' +
                 'form of "HH:MM"',
-            resolve: (options: TimeTableOptions) => options.start,
+            resolve: (options: TimeTableOptions) => options.end,
         },
         boxes: {
             type: GraphQLInt,
