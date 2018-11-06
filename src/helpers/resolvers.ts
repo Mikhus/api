@@ -322,7 +322,11 @@ export class Resolvers {
             fieldsList(info, { path: 'user' }),
         );
 
-        if (!authUser || !user || authUser._id !== user._id) {
+        if (!user) {
+            return null;
+        }
+
+        if (!(authUser && (authUser.isAdmin || authUser._id === user._id))) {
             return null;
         }
 
@@ -346,7 +350,9 @@ export class Resolvers {
     ): Promise<Partial<c.CarObject> | null> {
         const authUser = (info.rootValue as any).authUser;
 
-        if (!authUser || authUser._id !== reservation.userId) {
+        if (!(authUser &&
+            (authUser.isAdmin || authUser._id === reservation.userId)
+        )) {
             return null;
         }
 
