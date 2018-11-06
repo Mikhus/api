@@ -25,6 +25,7 @@ import {
     addCar,
     removeCar,
     reserve,
+    cancelReservation,
 } from './mutations';
 import {
     user,
@@ -67,6 +68,7 @@ const Mutation: GraphQLObjectType = new GraphQLObjectType({
         addCar,
         removeCar,
         reserve,
+        cancelReservation,
     },
 });
 

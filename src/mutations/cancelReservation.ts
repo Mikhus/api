@@ -16,36 +16,37 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 import {
-    GraphQLString,
+    GraphQLID,
     GraphQLNonNull,
+    GraphQLList,
     GraphQLResolveInfo,
 } from 'graphql';
 import { fromGlobalId, mutationWithClientMutationId } from 'graphql-relay';
-import { fieldsList } from 'graphql-fields-list';
-import { userType } from '../entities';
+import { reservationType } from '../entities';
 import { ERROR_UNAUTHORIZED } from '../ResponseError';
 import { verifyRequestForOwner } from '../validators';
+import { Resolvers } from '../helpers';
 
 /**
  * GraphQL Mutation: removeCar - removes car from a user
  */
-export const removeCar = mutationWithClientMutationId({
-    name: 'removeCar',
-    description: 'Removes car from a user',
+export const cancelReservation = mutationWithClientMutationId({
+    name: 'cancelReservation',
+    description: 'Cancels existing reservation',
     inputFields: {
-        carId: {
-            type: new GraphQLNonNull(GraphQLString),
-            description: 'User\'s car identifier',
+        id: {
+            type: new GraphQLNonNull(GraphQLID),
+            description: 'Existing reservation identifier',
         },
     },
     outputFields: {
-        user: {
-            type: userType,
-            description: 'Updated user data object',
+        reservations: {
+            type: new GraphQLList(reservationType),
+            description: 'Updated list of reservations',
         },
     },
     async mutateAndGetPayload(
-        args: { carId: string },
+        args: { id: string },
         context: any,
         info: GraphQLResolveInfo,
     ) {
@@ -55,13 +56,12 @@ export const removeCar = mutationWithClientMutationId({
 
         verifyRequestForOwner(info);
 
-        args.carId = fromGlobalId(args.carId).id;
+        const reservationId = fromGlobalId(args.id).id;
+        const reservations = await context.timeTable.cancel(
+            reservationId,
+            Resolvers.reservationFields(info, 'reservations'),
+        );
 
-        const user = await context.user.removeCar(args.carId, fieldsList(info, {
-            transform: { id: '_id' },
-            path: 'user'
-        }));
-
-        return { user };
+        return { reservations };
     }
 });
