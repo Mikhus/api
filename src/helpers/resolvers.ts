@@ -316,10 +316,17 @@ export class Resolvers {
         context: Context,
         info: GraphQLResolveInfo,
     ): Promise<u.UserObject | null> {
-        return await context.user.fetch(
+        const authUser = (info.rootValue as any).authUser;
+        const user = await context.user.fetch(
             reservation.userId,
             fieldsList(info, { path: 'user' }),
         );
+
+        if (!authUser || !user || authUser._id !== user._id) {
+            return null;
+        }
+
+        return user;
     }
 
     /**
@@ -337,6 +344,12 @@ export class Resolvers {
         context: Context,
         info: GraphQLResolveInfo,
     ): Promise<Partial<c.CarObject> | null> {
+        const authUser = (info.rootValue as any).authUser;
+
+        if (!authUser || authUser._id !== reservation.userId) {
+            return null;
+        }
+
         const userCar = await context.user.getCar(
             reservation.userId,
             reservation.carId,
