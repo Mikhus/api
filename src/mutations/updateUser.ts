@@ -187,5 +187,5 @@ export const updateUser = mutationWithClientMutationId({
                     : 'UPDATE_USER_ERROR'
             );
         }
-    }
+    },
 });

@@ -63,5 +63,5 @@ export const cancelReservation = mutationWithClientMutationId({
         );
 
         return { reservations };
-    }
+    },
 });

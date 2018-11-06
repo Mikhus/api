@@ -104,5 +104,5 @@ export const login = mutationWithClientMutationId({
         }
 
         return { user, token };
-    }
+    },
 });

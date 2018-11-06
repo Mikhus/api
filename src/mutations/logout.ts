@@ -59,5 +59,5 @@ export const logout = mutationWithClientMutationId({
         }
 
         return { success: true };
-    }
+    },
 });

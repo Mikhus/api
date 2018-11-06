@@ -99,5 +99,5 @@ export const addCar = mutationWithClientMutationId({
         }
 
         return null;
-    }
+    },
 });

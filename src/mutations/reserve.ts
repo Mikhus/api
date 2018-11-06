@@ -102,5 +102,5 @@ export const reserve = mutationWithClientMutationId({
         }
 
         return [];
-    }
+    },
 });

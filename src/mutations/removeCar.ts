@@ -63,5 +63,5 @@ export const removeCar = mutationWithClientMutationId({
         }));
 
         return { user };
-    }
+    },
 });
