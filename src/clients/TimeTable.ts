@@ -74,8 +74,8 @@ export namespace timeTable {
          * Makes a given reservation or throws a proper error
          * if action is not possible
          *
-         * @param {Reservation} reservation
-         * @param {string[]} [fields]
+         * @param {Reservation} reservation - reservation data structure
+         * @param {string[]} [fields] - fields to select for updated reservations list
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
          * @return {Promise<Reservation[]>}
          */
@@ -88,29 +88,15 @@ export namespace timeTable {
         /**
          * Cancels reservation at a given time
          *
-         * @param {string} reservationTime
+         * @param {string} id - reservation identifier
+         * @param {string[]} [fields] - fields to select for updated reservations list
          * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
-         * @return {Promise<boolean>}
+         * @return {Promise<Reservation[]>}
          */
         @profile()
         @remote()
-        public async cancel(reservationTime: string, delay?: IMQDelay): Promise<boolean> {
-            return await this.remoteCall<boolean>(...arguments);
-        }
-
-        /**
-         * Returns closes possible reservation for a selected washing type
-         * and a given startTime
-         *
-         * @param {string} washingType
-         * @param {string} startFrom
-         * @param {IMQDelay} [delay] - if passed the method will be called with the specified delay over message queue
-         * @return {Promise<Reservation | null>}
-         */
-        @profile()
-        @remote()
-        public async closest(washingType: string, startFrom: string, delay?: IMQDelay): Promise<Reservation | null> {
-            return await this.remoteCall<Reservation | null>(...arguments);
+        public async cancel(id: string, fields?: string[], delay?: IMQDelay): Promise<Reservation[]> {
+            return await this.remoteCall<Reservation[]>(...arguments);
         }
 
         /**
