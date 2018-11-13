@@ -207,7 +207,7 @@ export class Resolvers {
      * Fetches car brand (manufacturer) names
      *
      * @param {any} source
-     * @param {{ id?: string, email?: string }} args
+     * @param {any} args
      * @param {Context} context
      * @param {GraphQLResolveInfo} info
      * @return {Promise<string[]>}
@@ -215,7 +215,7 @@ export class Resolvers {
     @profile()
     public static async fetchCarBrands(
         source: any,
-        args: { brand: string },
+        args: any,
         context: Context,
         info: GraphQLResolveInfo,
     ): Promise<string[]> {
