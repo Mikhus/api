@@ -52,15 +52,20 @@ export class Resolvers {
         context: Context,
         info: GraphQLResolveInfo
     ) {
-        const { type, id } = fromGlobalId(globalId);
-        let node: any = null;
+        try {
+            const { type, id } = fromGlobalId(globalId);
+            let node: any = null;
 
-        if (type === 'User') {
-            node =  await context.user.fetch(
-                id, fieldsList(info, { transform: { id: '_id' } }));
+            if (type === 'User') {
+                node = await context.user.fetch(
+                    id, fieldsList(info, { transform: { id: '_id' } }));
+            }
+
+            return node;
+        } catch (err) {
+            Resolvers.logger.error(err);
+            return null;
         }
-
-        return node;
     }
 
     /**
@@ -196,7 +201,7 @@ export class Resolvers {
         info: GraphQLResolveInfo,
     ): Promise<Partial<c.CarObject>[]> {
         try {
-            return context.car.list(args.brand, fieldsList(info));
+            return await context.car.list(args.brand, fieldsList(info));
         } catch (err) {
             Resolvers.logger.error(err);
             return [];
@@ -220,7 +225,7 @@ export class Resolvers {
         info: GraphQLResolveInfo,
     ): Promise<string[]> {
         try {
-            return context.car.brands();
+            return await context.car.brands();
         } catch (err) {
             Resolvers.logger.error(err);
             return [];
@@ -273,7 +278,7 @@ export class Resolvers {
         info: GraphQLResolveInfo,
     ): Promise<Array<Partial<c.CarObject> | null>> {
         try {
-            return toRequestedCarsList(
+            return await toRequestedCarsList(
                 user.cars,
                 fieldsList(info),
                 context,
@@ -316,21 +321,26 @@ export class Resolvers {
         context: Context,
         info: GraphQLResolveInfo,
     ): Promise<u.UserObject | null> {
-        const authUser = (info.rootValue as any).authUser;
-        const user = await context.user.fetch(
-            reservation.userId,
-            fieldsList(info, { path: 'user' }),
-        );
+        try {
+            const authUser = (info.rootValue as any).authUser;
+            const user = await context.user.fetch(
+                reservation.userId,
+                fieldsList(info, { path: 'user' }),
+            );
 
-        if (!user) {
+            if (!user) {
+                return null;
+            }
+
+            if (!(authUser && (authUser.isAdmin || authUser._id === user._id))) {
+                return null;
+            }
+
+            return user;
+        } catch (err) {
+            Resolvers.logger.error(err);
             return null;
         }
-
-        if (!(authUser && (authUser.isAdmin || authUser._id === user._id))) {
-            return null;
-        }
-
-        return user;
     }
 
     /**
@@ -348,29 +358,34 @@ export class Resolvers {
         context: Context,
         info: GraphQLResolveInfo,
     ): Promise<Partial<c.CarObject> | null> {
-        const authUser = (info.rootValue as any).authUser;
+        try {
+            const authUser = (info.rootValue as any).authUser;
 
-        if (!(authUser &&
-            (authUser.isAdmin || authUser._id === reservation.userId)
-        )) {
+            if (!(authUser &&
+                (authUser.isAdmin || authUser._id === reservation.userId)
+            )) {
+                return null;
+            }
+
+            const userCar = await context.user.getCar(
+                reservation.userId,
+                reservation.carId,
+            );
+
+            if (!userCar) {
+                return null;
+            }
+
+            const car = await context.car.fetch(userCar.carId);
+
+            (userCar as any).id = userCar._id;
+            delete userCar._id;
+
+            return Object.assign(car, userCar) as Partial<c.CarObject>;
+        } catch (err) {
+            Resolvers.logger.error(err);
             return null;
         }
-
-        const userCar = await context.user.getCar(
-            reservation.userId,
-            reservation.carId,
-        );
-
-        if (!userCar) {
-            return null;
-        }
-
-        const car = await context.car.fetch(userCar.carId);
-
-        (userCar as any).id = userCar._id;
-        delete userCar._id;
-
-        return Object.assign(car, userCar) as Partial<c.CarObject>;
     }
 
     /**
